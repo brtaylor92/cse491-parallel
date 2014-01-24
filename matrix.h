@@ -29,27 +29,29 @@ using std::plus;
 using std::uniform_real_distribution;
 using std::vector;
 
-template <typename T>
-class Matrix {
- public:
+template <typename T> class Matrix {
+public:
   //  Default c'tor
   Matrix() = default;
 
   //  Explicit single-arg c'tor
   explicit Matrix(const int64_t &dim) : rDim(dim), cDim(dim), m(cDim * rDim) {
-    if (dim <= 0) throw BadDim(rDim, cDim);
+    if (dim <= 0)
+      throw BadDim(rDim, cDim);
   }
 
   //  2-arg square c'tor
   Matrix(const int64_t &dim, T val)
       : rDim(dim), cDim(dim), m(rDim * cDim, val) {
-    if (dim <= 0) throw BadDim(rDim, cDim);
+    if (dim <= 0)
+      throw BadDim(rDim, cDim);
   }
 
   //  3-arg multi-dim c'tor
   Matrix(const int64_t &r, const int64_t &c, T val)
       : rDim(r), cDim(c), m(rDim * cDim, val) {
-    if (rDim <= 0 || cDim <= 0) throw BadDim(rDim, cDim);
+    if (rDim <= 0 || cDim <= 0)
+      throw BadDim(rDim, cDim);
   }
 
   //  Initializer list c'tor
@@ -57,9 +59,11 @@ class Matrix {
       : rDim(init.size()), cDim(init.begin()->size()) {
     auto s = init.begin()->size();
     for (auto i : init)
-      if (i.size() != s) throw BadDim(rDim, cDim);
+      if (i.size() != s)
+        throw BadDim(rDim, cDim);
     m.reserve(cDim * rDim);
-    for (auto i : init) copy(i.begin(), i.end(), back_inserter(m));
+    for (auto i : init)
+      copy(i.begin(), i.end(), back_inserter(m));
   }
 
   //  Move c'tor
@@ -82,9 +86,11 @@ class Matrix {
   //  Operator() (index operator)
   T &operator()(const int64_t &r, const int64_t &c) {
     //  Make sure we're not dumb
-    if (r > rDim || c > cDim) throw BadDim(rDim, cDim);
+    if (r > rDim || c > cDim)
+      throw BadDim(rDim, cDim);
     //  Make sure the user knows they're dumb
-    if (r < 0 || c < 0) throw BadDim(r, c);
+    if (r < 0 || c < 0)
+      throw BadDim(r, c);
     return m.at(r * cDim + c);
   }
 
@@ -100,20 +106,26 @@ class Matrix {
 
   //  Add a and b into c (or return for assignment)
   Matrix add(const Matrix &a, const Matrix &b) {
-    if (a.rDim != rDim || b.rDim != rDim) throw BadDim(rDim, cDim);
-    if (a.cDim != cDim || b.cDim != cDim) throw BadDim(rDim, cDim);
+    if (a.rDim != rDim || b.rDim != rDim)
+      throw BadDim(rDim, cDim);
+    if (a.cDim != cDim || b.cDim != cDim)
+      throw BadDim(rDim, cDim);
     transform(a.m.begin(), a.m.end(), b.m.begin(), m.begin(), plus<T>());
     return *this;
   }
 
-  inline friend Matrix add(const Matrix &a, const Matrix &b, const Matrix &c) {
-    return c.add(a, b);
+  inline friend Matrix &add(const Matrix &a, const Matrix &b) {
+    Matrix c(a.cDim, a.rDim);
+    c.add(a, b);
+    return c;
   }
 
   //  Multiply a and b into c (or return for assignment)
   Matrix mult(const Matrix &a, const Matrix &b) {
-    if (a.cDim != b.rDim) throw BadDim(a.cDim, b.rDim);
-    if (rDim != a.rDim || cDim != b.cDim) throw BadDim(rDim, cDim);
+    if (a.cDim != b.rDim)
+      throw BadDim(a.cDim, b.rDim);
+    if (rDim != a.rDim || cDim != b.cDim)
+      throw BadDim(rDim, cDim);
     fill(m.begin(), m.end(), 0);
     for (auto r = 0; r < a.rDim; ++r)
       for (auto i = 0; i < a.cDim; ++i)
@@ -122,8 +134,10 @@ class Matrix {
     return *this;
   }
 
-  inline friend Matrix mult(const Matrix &a, const Matrix &b, const Matrix &c) {
-    return c.mult(a, b);
+  inline friend Matrix &mult(const Matrix &a, const Matrix &b) {
+    Matrix c(a.rDim, b.cDim);
+    c.mult(a, b);
+    return c;
   }
 
   //  Populate a matrix with random values between min and max
@@ -136,10 +150,10 @@ class Matrix {
     generate(m.begin(), m.end(), rng);
   }
 
- private:
-  const int64_t rDim;  //  Row dimension
-  const int64_t cDim;  //  Column dimension
-  vector<T> m;         //  Data storage - cDim*r int64_t
+private:
+  const int64_t rDim;   //  Row dimension
+  const int64_t cDim;   //  Column dimension
+  vector<T> m;          //  Data storage - cDim*r int64_t
 };
 
 #endif  // MATRIX_H_

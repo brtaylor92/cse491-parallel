@@ -7,7 +7,7 @@ using std::exception;
 using std::ostringstream;
 
 class BadDim : public exception {
- public:
+public:
   BadDim(int64_t rDim, int64_t cDim) {
     msg << "rDim: " << rDim << ", cDim: " << cDim;
   }
@@ -16,7 +16,7 @@ class BadDim : public exception {
 
   const char *what() const throw() override { return msg.str().c_str(); }
 
- private:
+private:
   ostringstream msg;
 };
 

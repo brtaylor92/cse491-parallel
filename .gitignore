@@ -14,3 +14,7 @@
 
 # Executable
 matrix
+
+# Google formatting
+*.py
+*.pyc

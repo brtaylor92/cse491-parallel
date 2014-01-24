@@ -1,3 +1,5 @@
+//Ben Taylor and Marty Scherr
+
 #ifndef MATRIX_H
 #define MATRIX_H
 

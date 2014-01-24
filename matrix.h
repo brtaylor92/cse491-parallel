@@ -35,20 +35,20 @@ public:
   Matrix() = default;
 
   //  Explicit single-arg c'tor
-  explicit Matrix(const int64_t &dim) : rDim(dim), cDim(dim), m(cDim * rDim) {
+  explicit Matrix(const int32_t &dim) : rDim(dim), cDim(dim), m(cDim * rDim) {
     if (dim <= 0)
       throw BadDim(rDim, cDim);
   }
 
   //  2-arg square c'tor
-  Matrix(const int64_t &dim, T val)
+  Matrix(const int32_t &dim, T val)
       : rDim(dim), cDim(dim), m(rDim * cDim, val) {
     if (dim <= 0)
       throw BadDim(rDim, cDim);
   }
 
   //  3-arg multi-dim c'tor
-  Matrix(const int64_t &r, const int64_t &c, T val)
+  Matrix(const int32_t &r, const int32_t &c, T val)
       : rDim(r), cDim(c), m(rDim * cDim, val) {
     if (rDim <= 0 || cDim <= 0)
       throw BadDim(rDim, cDim);
@@ -84,7 +84,7 @@ public:
   virtual ~Matrix() = default;
 
   //  Operator() (index operator)
-  T &operator()(const int64_t &r, const int64_t &c) {
+  T &operator()(const int32_t &r, const int32_t &c) {
     //  Make sure we're not dumb
     if (r > rDim || c > cDim)
       throw BadDim(rDim, cDim);
@@ -141,7 +141,7 @@ public:
   }
 
   //  Populate a matrix with random values between min and max
-  void Rand(T min, T max, int64_t seed = 0) {
+  void Rand(T min, T max, int32_t seed = 0) {
     default_random_engine r(
         seed ? seed
              : duration_cast<seconds>(hrc::now().time_since_epoch()).count());
@@ -151,9 +151,9 @@ public:
   }
 
 private:
-  const int64_t rDim;   //  Row dimension
-  const int64_t cDim;   //  Column dimension
-  vector<T> m;          //  Data storage - cDim*r int64_t
+  const int32_t rDim;   //  Row dimension
+  const int32_t cDim;   //  Column dimension
+  vector<T> m;          //  Data storage - cDim*r int32_t
 };
 
 #endif  // MATRIX_H_

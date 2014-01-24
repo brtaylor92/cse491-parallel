@@ -1,4 +1,4 @@
-#include "matrix.h"
+#include "./matrix.h"
 
 using std::cout;
 using std::chrono::microseconds;
@@ -19,15 +19,15 @@ int main(int argc, char const *argv[]) {
   (void)argv;
 
   // Test constructors
-  Matrix<long> a(4);
-  Matrix<long> b(4, 7);
-  Matrix<long> c(3, 2, 13);
-  Matrix<long> d{ { 1, 2, 3 }, { 4, 5, 6 }, { 7, 8, 9 } };
+  Matrix<int64_t> a(4);
+  Matrix<int64_t> b(4, 7);
+  Matrix<int64_t> c(3, 2, 13);
+  Matrix<int64_t> d{ { 1, 2, 3 }, { 4, 5, 6 }, { 7, 8, 9 } };
 
   cout << "a: " << endl << a << endl << "b: " << endl << b << endl
        << "c: " << endl << c << endl << "d: " << endl << d << endl;
 
-  Matrix<long> e = move(d);
+  Matrix<int64_t> e = move(d);
 
   cout << "d: " << endl << d << endl << "e: " << endl << e << endl;
 
@@ -37,27 +37,27 @@ int main(int argc, char const *argv[]) {
   cout << "e: " << endl << e << endl;
 
   // Edge cases...
-  Matrix<long> f{ {} };
+  Matrix<int64_t> f{ {} };
   cout << "f: " << f << endl;
 
   // Copy constructor
-  Matrix<long> g(c);
+  Matrix<int64_t> g(c);
   cout << "g: " << endl << g << endl;
 
-  Matrix<long> h = b;
+  Matrix<int64_t> h = b;
   cout << "h: " << endl << h << endl;
 
-  Matrix<long> i(3, 2, 0);
-  Matrix<long> j{ { 1, 3 }, { 7, 11 }, { 5, 19 } };
+  Matrix<int64_t> i(3, 2, 0);
+  Matrix<int64_t> j{ { 1, 3 }, { 7, 11 }, { 5, 19 } };
   i.add(c, j);
   cout << "i: " << endl << i << endl;
 
-  Matrix<long> k(3, 2, 0);
+  Matrix<int64_t> k(3, 2, 0);
   k.mult(e, c);
   cout << "k = e*c" << endl << "e: " << endl << e << endl << "c: " << endl << c
        << endl << "k: " << endl << k << endl;
 
-  Matrix<long> l(4, 0);
+  Matrix<int64_t> l(4, 0);
   l.rand(0, 10);
   cout << "l: " << endl << l << endl;
 

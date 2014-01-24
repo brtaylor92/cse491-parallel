@@ -81,7 +81,7 @@ public:
   }
 
   //  Destructor
-  virtual ~Matrix() = default;
+  ~Matrix() = default;
 
   //  Operator() (index operator)
   T &operator()(const int32_t &r, const int32_t &c) {
@@ -105,13 +105,12 @@ public:
   }
 
   //  Add a and b into c (or return for assignment)
-  Matrix add(const Matrix &a, const Matrix &b) {
+  void add(const Matrix &a, const Matrix &b) {
     if (a.rDim != rDim || b.rDim != rDim)
       throw BadDim(rDim, cDim);
     if (a.cDim != cDim || b.cDim != cDim)
       throw BadDim(rDim, cDim);
     transform(a.m.begin(), a.m.end(), b.m.begin(), m.begin(), plus<T>());
-    return *this;
   }
 
   inline friend Matrix &add(const Matrix &a, const Matrix &b) {
@@ -121,7 +120,7 @@ public:
   }
 
   //  Multiply a and b into c (or return for assignment)
-  Matrix mult(const Matrix &a, const Matrix &b) {
+  void mult(const Matrix &a, const Matrix &b) {
     if (a.cDim != b.rDim)
       throw BadDim(a.cDim, b.rDim);
     if (rDim != a.rDim || cDim != b.cDim)
@@ -131,7 +130,6 @@ public:
       for (auto i = 0; i < a.cDim; ++i)
         for (auto c = 0; c < b.cDim; ++c)
           m[r * cDim + c] += a.m[r * a.cDim + i] * b.m[i * b.cDim + c];
-    return *this;
   }
 
   inline friend Matrix &mult(const Matrix &a, const Matrix &b) {

@@ -127,7 +127,7 @@ class Matrix {
   }
 
   //  Populate a matrix with random values between min and max
-  void rand(T min, T max, int64_t seed = 0) {
+  void Rand(T min, T max, int64_t seed = 0) {
     default_random_engine r(
         seed ? seed
              : duration_cast<seconds>(hrc::now().time_since_epoch()).count());

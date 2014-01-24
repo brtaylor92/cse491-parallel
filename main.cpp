@@ -9,8 +9,8 @@ using std::move;
 void bigMult() {
   constexpr int sz = 500;
   Matrix<double> d1(sz), d2(sz), d3(sz);
-  d1.rand(0, 1, 13);
-  d2.rand(0, 1, 16);
+  d1.Rand(0, 1, 13);
+  d2.Rand(0, 1, 16);
   d3.mult(d1, d2);
 }
 
@@ -58,7 +58,7 @@ int main(int argc, char const *argv[]) {
        << endl << "k: " << endl << k << endl;
 
   Matrix<int64_t> l(4, 0);
-  l.rand(0, 10);
+  l.Rand(0, 10);
   cout << "l: " << endl << l << endl;
 
   microseconds dd{ 0 };

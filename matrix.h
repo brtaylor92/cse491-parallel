@@ -1,9 +1,6 @@
 #ifndef MATRIX_H_
 #define MATRIX_H_
 
-// Copyright for google lint purposes
-// Copyright 2014 Ben Taylor and Martin Scherr
-
 #include <algorithm>
 #include <chrono>
 #include <functional>

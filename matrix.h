@@ -61,7 +61,7 @@ public:
   Matrix(const Matrix &rs) : rDim(rs.rDim), cDim(rs.cDim), m(rs.m) {}
 
   //  Operator= (assignment operator)
-  Matrix operator=(Matrix rs) {
+  Matrix &operator=(Matrix rs) {
     swap(*this, rs);
     return *this;
   }

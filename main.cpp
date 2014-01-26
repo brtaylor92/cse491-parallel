@@ -11,7 +11,7 @@ void bigMult() {
   Matrix<double> d1(sz), d2(sz), d3(sz);
   d1.rand(0, 1, 13);
   d2.rand(0, 1, 16);
-  mult(d1, d2, d3);
+  Matrix<double>::mult(d1, d2, d3);
 }
 
 int main(int argc, char const *argv[]) {
@@ -49,11 +49,11 @@ int main(int argc, char const *argv[]) {
 
   Matrix<int64_t> i(3, 2, 0);
   Matrix<int64_t> j{ { 1, 3 }, { 7, 11 }, { 5, 19 } };
-  add(c, j, i);
+  Matrix<int64_t>::add(c, j, i);
   cout << "i: " << endl << i << endl;
 
   Matrix<int64_t> k(3, 2, 0);
-  mult(e, c, k);
+  Matrix<int64_t>::mult(e, c, k);
   cout << "k = e*c" << endl << "e: " << endl << e << endl << "c: " << endl << c
        << endl << "k: " << endl << k << endl;
 

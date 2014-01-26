@@ -77,6 +77,12 @@ public:
     return m.at(r * cDim + c);
   }
 
+  //  Add a to b into c
+  template<typename S> friend Matrix<S> &add(const Matrix<S> &a, const Matrix<S> &b, Matrix<S> &c);
+
+  //  Mult a by b into c
+  template<typename S> friend Matrix<S> &mult(const Matrix<S> &a, const Matrix<S> &b, Matrix<S> &c);
+
   //  Operator<<
   template <typename S>
   friend ostream &operator<<(ostream &o, const Matrix<S> &rs) {
@@ -86,33 +92,9 @@ public:
     }
     return o;
   }
-
-  //  Add a and b
-  void add(const Matrix &a, const Matrix &b) {
-    if (a.rDim != rDim || b.rDim != rDim)
-      throw BadDim(rDim, cDim);
-    if (a.cDim != cDim || b.cDim != cDim)
-      throw BadDim(rDim, cDim);
-    transform(a.m.begin(), a.m.end(), b.m.begin(), m.begin(), plus<T>());
-  }
-
-  //  Multiply a and b
-  void mult(const Matrix &a, const Matrix &b) {
-    if (this == &a || this == &b || &a == &b)
-      return;
-    if (a.cDim != b.rDim)
-      throw BadDim(a.cDim, b.rDim);
-    if (rDim != a.rDim || cDim != b.cDim)
-      throw BadDim(rDim, cDim);
-    fill(m.begin(), m.end(), 0);
-    for (uint32_t r = 0; r < a.rDim; ++r)
-      for (uint32_t i = 0; i < a.cDim; ++i)
-        for (uint32_t c = 0; c < b.cDim; ++c)
-          m[r * cDim + c] += a.m[r * a.cDim + i] * b.m[i * b.cDim + c];
-  }
-
+  
   //  Populate a matrix with random values between min and max
-  void Rand(T min, T max, uint32_t seed = 0) {
+  void rand(T min, T max, uint32_t seed = 0) {
     default_random_engine r(
         seed ? seed
              : duration_cast<seconds>(hrc::now().time_since_epoch()).count());
@@ -127,17 +109,41 @@ private:
   vector<T> m;         //  Data storage - cDim*r uint32_t
 };
 
-
-// Add or multiply 2 matrices and return the result as a new matrix
-template<typename T> Matrix<T> &add(const Matrix<T> &a, const Matrix<T> &b) {
-  Matrix<T> c(a.cDim, a.rDim);
-  c.add(a, b);
-  return c;
+//  Add a and b, return the result
+template<typename T> Matrix<T> &add(const Matrix<T> &a, const Matrix<T> &b, Matrix<T> &t) {
+  if (a.rDim != t.rDim || b.rDim != t.rDim)
+    throw BadDim(t.rDim, t.cDim);
+  if (a.cDim != t.cDim || b.cDim != t.cDim)
+    throw BadDim(t.rDim, t.cDim);
+  transform(a.m.begin(), a.m.end(), b.m.begin(), t.m.begin(), plus<T>());
+  return t;
 }
 
+//  Add or multiply 2 matrices and return the result as a new matrix
+template<typename T> Matrix<T> &add(const Matrix<T> &a, const Matrix<T> &b) {
+  Matrix<T> c(a.cDim, a.rDim);
+  add(a, b, c);
+  return c;
+}
+ 
+//  Multiply a and b into c
+template<typename T> Matrix<T> &mult(const Matrix<T> &a, const Matrix<T> &b, Matrix<T> &t) {
+  if (a.cDim != b.rDim)
+    throw BadDim(a.cDim, b.rDim);
+  if (t.rDim != a.rDim || t.cDim != b.cDim)
+    throw BadDim(t.rDim, t.cDim);
+  fill(t.m.begin(), t.m.end(), 0);
+  for (uint32_t r = 0; r < a.rDim; ++r)
+    for (uint32_t i = 0; i < a.cDim; ++i)
+      for (uint32_t c = 0; c < b.cDim; ++c)
+        t.m[r * t.cDim + c] += a.m[r * a.cDim + i] * b.m[i * b.cDim + c];
+  return t;
+}
+
+//  Multiply a by b, return the result
 template<typename T> Matrix<T> &mult(const Matrix<T> &a, const Matrix<T> &b) {
   Matrix<T> c(a.rDim, b.cDim);
-  c.mult(a, b);
+  mult(a, b, c);
   return c;
 }
 

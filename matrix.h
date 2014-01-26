@@ -120,9 +120,9 @@ public:
   }
 
 private:
-  const uint32_t rDim;  //  Row dimension
-  const uint32_t cDim;  //  Column dimension
-  vector<T> m;          //  Data storage - cDim*r uint32_t
+  const uint32_t rDim; //  Row dimension
+  const uint32_t cDim; //  Column dimension
+  vector<T> m;         //  Data storage - cDim*r uint32_t
 };
 
 //  Add or multiply 2 matrices and return the result as a new matrix
@@ -139,4 +139,4 @@ template <typename T> Matrix<T> mult(const Matrix<T> &a, const Matrix<T> &b) {
   return c;
 }
 
-#endif  // MATRIX_H_
+#endif // MATRIX_H_

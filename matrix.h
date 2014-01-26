@@ -119,6 +119,8 @@ public:
 
   //  Multiply a and b into c (or return for assignment)
   void mult(const Matrix &a, const Matrix &b) {
+    if (this == &a || this == &b || &a == &b)
+      return;
     if (a.cDim != b.rDim)
       throw BadDim(a.cDim, b.rDim);
     if (rDim != a.rDim || cDim != b.cDim)

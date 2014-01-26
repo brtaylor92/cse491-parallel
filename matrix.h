@@ -74,9 +74,6 @@ public:
     //  Make sure we're not dumb
     if (r > rDim || c > cDim)
       throw BadDim(rDim, cDim);
-    //  Make sure the user knows they're dumb
-    if (r < 0 || c < 0)
-      throw BadDim(r, c);
     return m.at(r * cDim + c);
   }
 
@@ -90,7 +87,7 @@ public:
     return o;
   }
 
-  //  Add a and b into *this (or return for assignment)
+  //  Add a and b
   void add(const Matrix &a, const Matrix &b) {
     if (a.rDim != rDim || b.rDim != rDim)
       throw BadDim(rDim, cDim);
@@ -99,13 +96,7 @@ public:
     transform(a.m.begin(), a.m.end(), b.m.begin(), m.begin(), plus<T>());
   }
 
-  friend Matrix &add(const Matrix &a, const Matrix &b) {
-    Matrix c(a.cDim, a.rDim);
-    c.add(a, b);
-    return c;
-  }
-
-  //  Multiply a and b into *this (or return for assignment)
+  //  Multiply a and b
   void mult(const Matrix &a, const Matrix &b) {
     if (this == &a || this == &b || &a == &b)
       return;
@@ -114,16 +105,10 @@ public:
     if (rDim != a.rDim || cDim != b.cDim)
       throw BadDim(rDim, cDim);
     fill(m.begin(), m.end(), 0);
-    for (auto r = 0; r < a.rDim; ++r)
-      for (auto i = 0; i < a.cDim; ++i)
-        for (auto c = 0; c < b.cDim; ++c)
+    for (uint32_t r = 0; r < a.rDim; ++r)
+      for (uint32_t i = 0; i < a.cDim; ++i)
+        for (uint32_t c = 0; c < b.cDim; ++c)
           m[r * cDim + c] += a.m[r * a.cDim + i] * b.m[i * b.cDim + c];
-  }
-
-  friend Matrix &mult(const Matrix &a, const Matrix &b) {
-    Matrix c(a.rDim, b.cDim);
-    c.mult(a, b);
-    return c;
   }
 
   //  Populate a matrix with random values between min and max
@@ -141,5 +126,19 @@ private:
   const uint32_t cDim; //  Column dimension
   vector<T> m;         //  Data storage - cDim*r uint32_t
 };
+
+
+// Add or multiply 2 matrices and return the result as a new matrix
+template<typename T> Matrix<T> &add(const Matrix<T> &a, const Matrix<T> &b) {
+  Matrix<T> c(a.cDim, a.rDim);
+  c.add(a, b);
+  return c;
+}
+
+template<typename T> Matrix<T> &mult(const Matrix<T> &a, const Matrix<T> &b) {
+  Matrix<T> c(a.rDim, b.cDim);
+  c.mult(a, b);
+  return c;
+}
 
 #endif // MATRIX_H_

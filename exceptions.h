@@ -14,7 +14,9 @@ public:
 
   BadDim(const BadDim &rs) : msg(rs.msg.str()) {}
 
-  const char *what() const throw() override { return msg.str().c_str(); }
+  virtual const char *what() const throw() override {
+    return msg.str().c_str();
+  }
 
 private:
   ostringstream msg;
@@ -24,7 +26,7 @@ class SelfAssign : public exception {
 public:
   SelfAssign() {}
 
-  const char *what() const throw() override {
+  virtual const char *what() const throw() override {
     return "Attempted to multiply or add a matrix into itself";
   }
 };

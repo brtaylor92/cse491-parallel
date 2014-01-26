@@ -1,6 +1,9 @@
 #ifndef MATRIX_H_
 #define MATRIX_H_
 
+// Copyright for google lint purposes
+// Copyright 2014 Ben Taylor and Martin Scherr
+
 #include <algorithm>
 #include <chrono>
 #include <functional>
@@ -64,9 +67,7 @@ public:
   }
 
   //  Move c'tor
-  Matrix(Matrix &&rs) : rDim(rs.rDim), cDim(rs.cDim), m(rs.m) {
-    fill(rs.m.begin(), rs.m.end(), 0);
-  }
+  Matrix(Matrix &&rs) : rDim(rs.rDim), cDim(rs.cDim), m(move(rs.m)) {}
 
   //  Copy c'tor for operator=
   Matrix(const Matrix &rs) : rDim(rs.rDim), cDim(rs.cDim), m(rs.m) {}
@@ -101,7 +102,7 @@ public:
     return o;
   }
 
-  //  Add a and b into c (or return for assignment)
+  //  Add a and b into *this
   void add(const Matrix &a, const Matrix &b) {
     if (a.rDim != rDim || b.rDim != rDim)
       throw BadDim(rDim, cDim);
@@ -110,7 +111,7 @@ public:
     transform(a.m.begin(), a.m.end(), b.m.begin(), m.begin(), plus<T>());
   }
 
-  inline friend Matrix &add(const Matrix &a, const Matrix &b) {
+  friend Matrix &add(const Matrix &a, const Matrix &b) {
     Matrix c(a.cDim, a.rDim);
     c.add(a, b);
     return c;
@@ -129,7 +130,7 @@ public:
           m[r * cDim + c] += a.m[r * a.cDim + i] * b.m[i * b.cDim + c];
   }
 
-  inline friend Matrix &mult(const Matrix &a, const Matrix &b) {
+  friend Matrix &mult(const Matrix &a, const Matrix &b) {
     Matrix c(a.rDim, b.cDim);
     c.mult(a, b);
     return c;

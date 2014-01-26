@@ -20,4 +20,13 @@ private:
   ostringstream msg;
 };
 
-#endif  // EXCEPTIONS_H_
+class SelfAssign : public exception {
+public:
+  SelfAssign() {}
+
+  const char *what() const throw() override {
+    return "Attempted to multiply or add a matrix into itself";
+  }
+};
+
+#endif // EXCEPTIONS_H_

@@ -20,8 +20,10 @@ using std::chrono::duration_cast;
 using hrc = std::chrono::high_resolution_clock;
 using std::chrono::seconds;
 using std::initializer_list;
+using std::multiplies;
 using std::ostream;
 using std::ostream_iterator;
+using std::placeholders::_1;
 using std::plus;
 using std::uniform_real_distribution;
 using std::vector;
@@ -77,17 +79,22 @@ public:
     return m.at(r * cDim + c);
   }
 
-  //  Add a to b into c
-  static void add(const Matrix &a, const Matrix &b, Matrix &t) {
+  //  Add a to b into t
+  static Matrix &add(const Matrix &a, const Matrix &b, Matrix &t) {
+    if(&a == &t || &b == &t)
+      throw SelfAssign();
     if (a.rDim != t.rDim || b.rDim != t.rDim)
       throw BadDim(t.rDim, t.cDim);
     if (a.cDim != t.cDim || b.cDim != t.cDim)
       throw BadDim(t.rDim, t.cDim);
     transform(a.m.begin(), a.m.end(), b.m.begin(), t.m.begin(), plus<T>());
+    return t;
   }
 
-  //  Mult a by b into c
-  static void mult(const Matrix &a, const Matrix &b, Matrix &t) {
+  //  Mult a by b into t
+  static Matrix &mult(const Matrix &a, const Matrix &b, Matrix &t) {
+    if(&a == &t || &b == &t)
+      throw SelfAssign();
     if (a.cDim != b.rDim)
       throw BadDim(a.cDim, b.rDim);
     if (t.rDim != a.rDim || t.cDim != b.cDim)
@@ -97,6 +104,12 @@ public:
       for (uint32_t i = 0; i < a.cDim; ++i)
         for (uint32_t c = 0; c < b.cDim; ++c)
           t.m[r * t.cDim + c] += a.m[r * a.cDim + i] * b.m[i * b.cDim + c];
+    return t;
+  }
+
+  //  Mult t by a scalar s
+  static Matrix &mult(const T &s, Matrix &t) {
+    transform(t.m.begin(), t.m.end(), bind(multiplies<T>(), _1, s));
   }
 
   //  Operator<<
@@ -120,9 +133,9 @@ public:
   }
 
 private:
-  const uint32_t rDim; //  Row dimension
-  const uint32_t cDim; //  Column dimension
-  vector<T> m;         //  Data storage - cDim*r uint32_t
+  const uint32_t rDim;  //  Row dimension
+  const uint32_t cDim;  //  Column dimension
+  vector<T> m;          //  Data storage - cDim*r uint32_t
 };
 
 //  Add or multiply 2 matrices and return the result as a new matrix
@@ -139,4 +152,4 @@ template <typename T> Matrix<T> mult(const Matrix<T> &a, const Matrix<T> &b) {
   return c;
 }
 
-#endif // MATRIX_H_
+#endif  // MATRIX_H_

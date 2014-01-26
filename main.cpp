@@ -8,10 +8,11 @@ using std::move;
 
 void bigMult() {
   constexpr int sz = 500;
-  Matrix<double> d1(sz), d2(sz), d3(sz);
+  using T = double;
+  Matrix<T> d1(sz), d2(sz), d3(sz);
   d1.rand(0, 1, 13);
   d2.rand(0, 1, 16);
-  Matrix<double>::mult(d1, d2, d3);
+  Matrix<T>::mult(d1, d2, d3);
 }
 
 int main(int argc, char const *argv[]) {

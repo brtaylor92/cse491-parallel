@@ -78,10 +78,12 @@ public:
   }
 
   //  Add a to b into c
-  template<typename S> friend Matrix<S> &add(const Matrix<S> &a, const Matrix<S> &b, Matrix<S> &c);
+  template <typename S>
+  friend Matrix<S> &add(const Matrix<S> &a, const Matrix<S> &b, Matrix<S> &c);
 
   //  Mult a by b into c
-  template<typename S> friend Matrix<S> &mult(const Matrix<S> &a, const Matrix<S> &b, Matrix<S> &c);
+  template <typename S>
+  friend Matrix<S> &mult(const Matrix<S> &a, const Matrix<S> &b, Matrix<S> &c);
 
   //  Operator<<
   template <typename S>
@@ -92,7 +94,7 @@ public:
     }
     return o;
   }
-  
+
   //  Populate a matrix with random values between min and max
   void rand(T min, T max, uint32_t seed = 0) {
     default_random_engine r(
@@ -110,7 +112,8 @@ private:
 };
 
 //  Add a and b, return the result
-template<typename T> Matrix<T> &add(const Matrix<T> &a, const Matrix<T> &b, Matrix<T> &t) {
+template <typename T>
+Matrix<T> &add(const Matrix<T> &a, const Matrix<T> &b, Matrix<T> &t) {
   if (a.rDim != t.rDim || b.rDim != t.rDim)
     throw BadDim(t.rDim, t.cDim);
   if (a.cDim != t.cDim || b.cDim != t.cDim)
@@ -120,14 +123,15 @@ template<typename T> Matrix<T> &add(const Matrix<T> &a, const Matrix<T> &b, Matr
 }
 
 //  Add or multiply 2 matrices and return the result as a new matrix
-template<typename T> Matrix<T> &add(const Matrix<T> &a, const Matrix<T> &b) {
+template <typename T> Matrix<T> &add(const Matrix<T> &a, const Matrix<T> &b) {
   Matrix<T> c(a.cDim, a.rDim);
   add(a, b, c);
   return c;
 }
- 
+
 //  Multiply a and b into c
-template<typename T> Matrix<T> &mult(const Matrix<T> &a, const Matrix<T> &b, Matrix<T> &t) {
+template <typename T>
+Matrix<T> &mult(const Matrix<T> &a, const Matrix<T> &b, Matrix<T> &t) {
   if (a.cDim != b.rDim)
     throw BadDim(a.cDim, b.rDim);
   if (t.rDim != a.rDim || t.cDim != b.cDim)
@@ -141,7 +145,7 @@ template<typename T> Matrix<T> &mult(const Matrix<T> &a, const Matrix<T> &b, Mat
 }
 
 //  Multiply a by b, return the result
-template<typename T> Matrix<T> &mult(const Matrix<T> &a, const Matrix<T> &b) {
+template <typename T> Matrix<T> &mult(const Matrix<T> &a, const Matrix<T> &b) {
   Matrix<T> c(a.rDim, b.cDim);
   mult(a, b, c);
   return c;

@@ -99,7 +99,7 @@ public:
     return o;
   }
 
-  //  Add a and b into *this
+  //  Add a and b into *this (or return for assignment)
   void add(const Matrix &a, const Matrix &b) {
     if (a.rDim != rDim || b.rDim != rDim)
       throw BadDim(rDim, cDim);
@@ -114,7 +114,7 @@ public:
     return c;
   }
 
-  //  Multiply a and b into c (or return for assignment)
+  //  Multiply a and b into *this (or return for assignment)
   void mult(const Matrix &a, const Matrix &b) {
     if (this == &a || this == &b || &a == &b)
       return;

@@ -78,6 +78,9 @@ public:
       throw BadDim(rDim, cDim);
     return m.at(r * cDim + c);
   }
+  //  Get dimensions
+  inline uint32_t rows() const { return rDim; }
+  inline uint32_t cols() const { return cDim; }
 
   //  Add a to b into t
   static Matrix &add(const Matrix &a, const Matrix &b, Matrix &t) {
@@ -108,8 +111,11 @@ public:
   }
 
   //  Mult t by a scalar s
-  static Matrix &mult(const T &s, Matrix &t) {
-    transform(t.m.begin(), t.m.end(), bind(multiplies<T>(), _1, s));
+  static Matrix &mult(const T &s, const Matrix &a, Matrix &t) {
+    if(a.cDim != t.cDim || a.rDim != t.rDim)
+        throw BadDim(t.rDim, t.cDim);
+    transform(a.m.begin(), a.m.end(), t.m.begin(), bind(multiplies<T>(), _1, s));
+    return t;
   }
 
   //  Operator<<
@@ -140,16 +146,24 @@ private:
 
 //  Add or multiply 2 matrices and return the result as a new matrix
 template <typename T> Matrix<T> add(const Matrix<T> &a, const Matrix<T> &b) {
-  Matrix<T> c(a.cDim, a.rDim);
+  Matrix<T> c(a.rows(), a.cols(), 0);
   Matrix<T>::add(a, b, c);
   return c;
 }
 
 //  Multiply a by b, return the result
 template <typename T> Matrix<T> mult(const Matrix<T> &a, const Matrix<T> &b) {
-  Matrix<T> c(a.rDim, b.cDim);
+  Matrix<T> c(a.rows(), b.cols(), 0);
   Matrix<T>::mult(a, b, c);
   return c;
 }
+
+//  Multiply a by a scalar s, return the result
+template <typename T> Matrix<T> mult(const T &s, const Matrix<T> &a) {
+  Matrix<T> c(a.rows(), a.cols(), 0);
+  Matrix<T>::mult(s, a, c);
+  return c;
+}
+
 
 #endif  // MATRIX_H_

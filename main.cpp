@@ -52,19 +52,18 @@ int main(int argc, char const *argv[]) {
   Matrix<int64_t> j{ { 1, 3 }, { 7, 11 }, { 5, 19 } };
   Matrix<int64_t>::add(c, j, i);
   cout << "i = c+j: " << endl << i << endl;
-  cout << "c+j: " << endl << add<int64_t>(c,j) << endl;
+  cout << "c+j: " << endl << add<int64_t>(c, j) << endl;
 
   Matrix<int64_t> k(3, 2, 0);
   Matrix<int64_t>::mult(e, c, k);
   cout << "k = e*c" << endl << "e: " << endl << e << endl << "c: " << endl << c
        << endl << "k: " << endl << k << endl;
-  cout << "e*c: " << endl << mult<int64_t>(e,c) << endl;
+  cout << "e*c: " << endl << mult<int64_t>(e, c) << endl;
 
   Matrix<int64_t> l(3, 2, 0);
-  Matrix<int64_t>::mult(3,k,l); 
+  Matrix<int64_t>::mult(3, k, l);
   cout << "l = 3*k: " << endl << "l: " << endl << l << endl;
-  cout << "3*k: " << endl << mult<int64_t>(3,k) << endl;
-  
+  cout << "3*k: " << endl << mult<int64_t>(3, k) << endl;
 
   Matrix<int64_t> m(4, 0);
   m.rand(0, 10);

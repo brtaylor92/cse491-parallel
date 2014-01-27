@@ -84,7 +84,7 @@ public:
 
   //  Add a to b into t
   static Matrix &add(const Matrix &a, const Matrix &b, Matrix &t) {
-    if(&a == &t || &b == &t)
+    if (&a == &t || &b == &t)
       throw SelfAssign();
     if (a.rDim != t.rDim || b.rDim != t.rDim)
       throw BadDim(t.rDim, t.cDim);
@@ -96,7 +96,7 @@ public:
 
   //  Mult a by b into t
   static Matrix &mult(const Matrix &a, const Matrix &b, Matrix &t) {
-    if(&a == &t || &b == &t)
+    if (&a == &t || &b == &t)
       throw SelfAssign();
     if (a.cDim != b.rDim)
       throw BadDim(a.cDim, b.rDim);
@@ -112,9 +112,10 @@ public:
 
   //  Mult t by a scalar s
   static Matrix &mult(const T &s, const Matrix &a, Matrix &t) {
-    if(a.cDim != t.cDim || a.rDim != t.rDim)
-        throw BadDim(t.rDim, t.cDim);
-    transform(a.m.begin(), a.m.end(), t.m.begin(), bind(multiplies<T>(), _1, s));
+    if (a.cDim != t.cDim || a.rDim != t.rDim)
+      throw BadDim(t.rDim, t.cDim);
+    transform(a.m.begin(), a.m.end(), t.m.begin(),
+              bind(multiplies<T>(), _1, s));
     return t;
   }
 
@@ -139,9 +140,9 @@ public:
   }
 
 private:
-  const uint32_t rDim;  //  Row dimension
-  const uint32_t cDim;  //  Column dimension
-  vector<T> m;          //  Data storage - cDim*r uint32_t
+  const uint32_t rDim; //  Row dimension
+  const uint32_t cDim; //  Column dimension
+  vector<T> m;         //  Data storage - cDim*r uint32_t
 };
 
 //  Add or multiply 2 matrices and return the result as a new matrix
@@ -165,5 +166,4 @@ template <typename T> Matrix<T> mult(const T &s, const Matrix<T> &a) {
   return c;
 }
 
-
-#endif  // MATRIX_H_
+#endif // MATRIX_H_

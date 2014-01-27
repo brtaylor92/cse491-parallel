@@ -14,6 +14,8 @@ public:
 
   BadDim(const BadDim &rs) : msg(rs.msg.str()) {}
 
+  virtual ~BadDim() throw() {}
+
   virtual const char *what() const throw() override {
     return msg.str().c_str();
   }
@@ -26,6 +28,8 @@ class SelfAssign : public exception {
 public:
   SelfAssign() {}
 
+  virtual ~SelfAssign() throw() {}
+  
   virtual const char *what() const throw() override {
     return "Attempted to multiply or add a matrix into itself";
   }

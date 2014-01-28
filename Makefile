@@ -1,4 +1,4 @@
-CXX = clang++
+CXX = g++
 CPPFLAGS = -std=c++11 -Wall -Wextra -Werror -pedantic-errors
 CPPDEBUG = -Og -g -fsanitize=undefined
 CPPOPTIM = -O3

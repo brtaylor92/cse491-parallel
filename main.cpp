@@ -8,7 +8,7 @@ using std::move;
 
 void bigMult() {
   constexpr int sz = 500;
-  using T = double;
+  using T = int64_t;
   Matrix<T> d1(sz), d2(sz), d3(sz);
   d1.rand(0, 1, 13);
   d2.rand(0, 1, 16);
@@ -19,7 +19,7 @@ int main(int argc, char const *argv[]) {
   (void)argc;
   (void)argv;
 
-  // Test constructors
+  /*// Test constructors
   Matrix<int64_t> a(4);
   Matrix<int64_t> b(4, 7);
   Matrix<int64_t> c(3, 2, 13);
@@ -67,7 +67,7 @@ int main(int argc, char const *argv[]) {
 
   Matrix<int64_t> m(4, 0);
   m.rand(0, 10);
-  cout << "m: " << endl << m << endl;
+  cout << "m: " << endl << m << endl;*/
 
   microseconds dd{ 0 };
 

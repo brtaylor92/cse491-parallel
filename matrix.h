@@ -10,6 +10,7 @@
 #include <random>
 #include <sstream>
 #include <string>
+#include <type_traits>
 #include <vector>
 
 #include "./exceptions.h"
@@ -20,6 +21,7 @@ using std::chrono::duration_cast;
 using hrc = std::chrono::high_resolution_clock;
 using std::chrono::seconds;
 using std::initializer_list;
+using std::is_arithmetic;
 using std::multiplies;
 using std::ostream;
 using std::ostream_iterator;
@@ -34,19 +36,30 @@ public:
   Matrix() = default;
 
   //  Explicit single-arg c'tor
-  explicit Matrix(const uint32_t &dim) : rDim(dim), cDim(dim), m(cDim * rDim) {}
+  explicit Matrix(const uint32_t &dim) : rDim(dim), cDim(dim), m(cDim * rDim) {
+    if (!is_arithmetic<T>::value)
+      throw BadType();
+  }
 
   //  2-arg square c'tor
   Matrix(const uint32_t &dim, T val)
-      : rDim(dim), cDim(dim), m(rDim * cDim, val) {}
+      : rDim(dim), cDim(dim), m(rDim * cDim, val) {
+    if (!is_arithmetic<T>::value)
+      throw BadType();
+  }
 
   //  3-arg multi-dim c'tor
   Matrix(const uint32_t &r, const uint32_t &c, T val)
-      : rDim(r), cDim(c), m(rDim * cDim, val) {}
+      : rDim(r), cDim(c), m(rDim * cDim, val) {
+    if (!is_arithmetic<T>::value)
+      throw BadType();
+  }
 
   //  Initializer list c'tor
   Matrix(initializer_list<initializer_list<T> > init)
       : rDim(init.size()), cDim(init.begin()->size()) {
+    if (!is_arithmetic<T>::value)
+      throw BadType();
     auto s = init.begin()->size();
     for (auto i : init)
       if (i.size() != s)
@@ -119,15 +132,8 @@ public:
     return t;
   }
 
-  //  Operator<<
   template <typename S>
-  friend ostream &operator<<(ostream &o, const Matrix<S> &rs) {
-    for (auto i = rs.m.begin(); i != rs.m.end(); i += rs.cDim) {
-      copy(i, i + rs.cDim, ostream_iterator<T>(o, ", "));
-      o << endl;
-    }
-    return o;
-  }
+  friend ostream &operator<<(ostream &o, const Matrix<S> &rs);
 
   //  Populate a matrix with random values between min and max
   void rand(T min, T max, uint32_t seed = 0) {
@@ -137,6 +143,8 @@ public:
     uniform_real_distribution<double> d(min, max);
     auto rng = bind(d, ref(r));
     generate(m.begin(), m.end(), rng);
+    /*for(auto &i : m)
+      i = rng();*/
   }
 
 private:
@@ -164,6 +172,15 @@ template <typename T> Matrix<T> mult(const T &s, const Matrix<T> &a) {
   Matrix<T> c(a.rows(), a.cols(), 0);
   Matrix<T>::mult(s, a, c);
   return c;
+}
+
+//  Operator<<
+template <typename T> ostream &operator<<(ostream &o, const Matrix<T> &rs) {
+  for (auto i = rs.m.begin(); i != rs.m.end(); i += rs.cDim) {
+    copy(i, i + rs.cDim, ostream_iterator<T>(o, ", "));
+    o << endl;
+  }
+  return o;
 }
 
 #endif // MATRIX_H_

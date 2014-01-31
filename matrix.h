@@ -27,6 +27,7 @@ using std::ostream;
 using std::ostream_iterator;
 using std::placeholders::_1;
 using std::plus;
+using std::swap;
 using std::uniform_real_distribution;
 using std::vector;
 
@@ -78,8 +79,10 @@ public:
   Matrix(const Matrix &rs) : r(rs.rDim), c(rs.cDim), m(rs.m) {}
 
   //  Operator= (assignment operator)
-  Matrix &operator=(Matrix rs) {
-    swap(*this, rs);
+  Matrix &operator=(const Matrix &rs) {
+    m = rs.m;
+    r = rs.rDim;
+    c = rs.cDim;
     return *this;
   }
 

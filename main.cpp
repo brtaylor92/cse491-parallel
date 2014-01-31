@@ -33,6 +33,10 @@ int main(int argc, char const *argv[]) {
   cout << "d: " << endl << d << endl << "d dimensions: " << endl << d.rows()
        << endl << d.cols() << endl << "e: " << endl << e << endl;
 
+  d = e;
+
+  cout << "d: " << endl << d << endl;
+
   // Test operator()
   cout << "e(1,2): " << e(1, 2) << endl << "e(2,1) = 0" << endl;
   e(2, 1) = 0;

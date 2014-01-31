@@ -8,7 +8,7 @@ using std::move;
 
 void bigMult() {
   constexpr int sz = 500;
-  using T = int64_t;
+  using T = double;
   Matrix<T> d1(sz), d2(sz), d3(sz);
   d1.rand(0, 1, 13);
   d2.rand(0, 1, 16);

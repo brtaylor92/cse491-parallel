@@ -19,7 +19,7 @@ int main(int argc, char const *argv[]) {
   (void)argc;
   (void)argv;
 
-  /*// Test constructors
+  // Test constructors
   Matrix<int64_t> a(4);
   Matrix<int64_t> b(4, 7);
   Matrix<int64_t> c(3, 2, 13);
@@ -67,7 +67,7 @@ int main(int argc, char const *argv[]) {
 
   Matrix<int64_t> m(4, 0);
   m.rand(0, 10);
-  cout << "m: " << endl << m << endl;*/
+  cout << "m: " << endl << m << endl;
 
   microseconds dd{ 0 };
 

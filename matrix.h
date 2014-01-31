@@ -61,7 +61,7 @@ public:
     if (!is_arithmetic<T>::value)
       throw BadType();
     auto s = init.begin()->size();
-    for (auto i : init)
+    for (const auto &i : init)
       if (i.size() != s)
         throw BadDim(rDim, cDim);
     m.reserve(cDim * rDim);
@@ -91,8 +91,10 @@ public:
       throw BadDim(rDim, cDim);
     return m.at(r * cDim + c);
   }
+
   //  Get dimensions
   inline uint32_t rows() const { return rDim; }
+
   inline uint32_t cols() const { return cDim; }
 
   //  Add a to b into t
@@ -143,8 +145,6 @@ public:
     uniform_real_distribution<double> d(min, max);
     auto rng = bind(d, ref(r));
     generate(m.begin(), m.end(), rng);
-    /*for(auto &i : m)
-      i = rng();*/
   }
 
 private:
@@ -177,8 +177,8 @@ template <typename T> Matrix<T> mult(const T &s, const Matrix<T> &a) {
 //  Operator<<
 template <typename T> ostream &operator<<(ostream &o, const Matrix<T> &rs) {
   for (auto i = rs.m.begin(); i != rs.m.end(); i += rs.cDim) {
-    copy(i, i + rs.cDim, ostream_iterator<T>(o, ", "));
-    o << endl;
+    copy(i, i + rs.cDim - 1, ostream_iterator<T>(o, ", "));
+    o << *(i + rs.cDim - 1) << endl;
   }
   return o;
 }

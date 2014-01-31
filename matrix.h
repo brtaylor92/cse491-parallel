@@ -36,28 +36,27 @@ public:
   Matrix() = default;
 
   //  Explicit single-arg c'tor
-  explicit Matrix(const uint32_t &dim) : rDim(dim), cDim(dim), m(cDim * rDim) {
+  explicit Matrix(const uint32_t &dim) : r(dim), c(dim), m(rDim * cDim) {
     if (!is_arithmetic<T>::value)
       throw BadType();
   }
 
   //  2-arg square c'tor
-  Matrix(const uint32_t &dim, T val)
-      : rDim(dim), cDim(dim), m(rDim * cDim, val) {
+  Matrix(const uint32_t &dim, T val) : r(dim), c(dim), m(rDim * cDim, val) {
     if (!is_arithmetic<T>::value)
       throw BadType();
   }
 
   //  3-arg multi-dim c'tor
-  Matrix(const uint32_t &r, const uint32_t &c, T val)
-      : rDim(r), cDim(c), m(rDim * cDim, val) {
+  Matrix(const uint32_t &rows, const uint32_t &cols, T val)
+      : r(rows), c(cols), m(rDim * cDim, val) {
     if (!is_arithmetic<T>::value)
       throw BadType();
   }
 
   //  Initializer list c'tor
   Matrix(initializer_list<initializer_list<T> > init)
-      : rDim(init.size()), cDim(init.begin()->size()) {
+      : r(init.size()), c(init.begin()->size()) {
     if (!is_arithmetic<T>::value)
       throw BadType();
     auto s = init.begin()->size();
@@ -70,10 +69,13 @@ public:
   }
 
   //  Move c'tor
-  Matrix(Matrix &&rs) : rDim(rs.rDim), cDim(rs.cDim), m(move(rs.m)) {}
+  Matrix(Matrix &&rs) : r(rs.rDim), c(rs.cDim), m(move(rs.m)) {
+    rs.r = 0;
+    rs.c = 0;
+  }
 
   //  Copy c'tor for operator=
-  Matrix(const Matrix &rs) : rDim(rs.rDim), cDim(rs.cDim), m(rs.m) {}
+  Matrix(const Matrix &rs) : r(rs.rDim), c(rs.cDim), m(rs.m) {}
 
   //  Operator= (assignment operator)
   Matrix &operator=(Matrix rs) {
@@ -85,11 +87,11 @@ public:
   ~Matrix() = default;
 
   //  Operator() (index operator)
-  T &operator()(const uint32_t &r, const uint32_t &c) {
+  T &operator()(const uint32_t &rows, const uint32_t &cols) {
     //  Make sure we're not dumb
-    if (r > rDim || c > cDim)
+    if (rows > rDim || cols > cDim)
       throw BadDim(rDim, cDim);
-    return m.at(r * cDim + c);
+    return m.at(rows * cDim + cols);
   }
 
   //  Get dimensions
@@ -148,9 +150,11 @@ public:
   }
 
 private:
-  const uint32_t rDim; //  Row dimension
-  const uint32_t cDim; //  Column dimension
-  vector<T> m;         //  Data storage - cDim*r uint32_t
+  uint32_t r;
+  uint32_t c;
+  const uint32_t &rDim = r; //  Row dimension
+  const uint32_t &cDim = c; //  Column dimension
+  vector<T> m;              //  Data storage - cDim*r uint32_t
 };
 
 //  Add or multiply 2 matrices and return the result as a new matrix

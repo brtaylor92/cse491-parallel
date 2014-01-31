@@ -30,7 +30,8 @@ int main(int argc, char const *argv[]) {
 
   Matrix<int64_t> e = move(d);
 
-  cout << "d: " << endl << d << endl << "e: " << endl << e << endl;
+  cout << "d: " << endl << d << endl << "d dimensions: " << endl << d.rows()
+       << endl << d.cols() << endl << "e: " << endl << e << endl;
 
   // Test operator()
   cout << "e(1,2): " << e(1, 2) << endl << "e(2,1) = 0" << endl;
@@ -51,6 +52,7 @@ int main(int argc, char const *argv[]) {
   Matrix<int64_t> i(3, 2, 0);
   Matrix<int64_t> j{ { 1, 3 }, { 7, 11 }, { 5, 19 } };
   Matrix<int64_t>::add(c, j, i);
+  cout << add(c, c) << endl;
   cout << "i = c+j: " << endl << i << endl;
   cout << "c+j: " << endl << add<int64_t>(c, j) << endl;
 

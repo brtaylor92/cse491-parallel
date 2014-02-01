@@ -27,6 +27,7 @@ using std::ostream;
 using std::ostream_iterator;
 using std::placeholders::_1;
 using std::plus;
+using std::seed_seq;
 using std::swap;
 using std::uniform_real_distribution;
 using std::vector;
@@ -70,7 +71,9 @@ public:
   }
 
   //  Move c'tor
-  Matrix(Matrix &&rs) : r(rs.rDim), c(rs.cDim), m(move(rs.m)) {
+  Matrix(Matrix &&rs) : r(rs.rDim), c(rs.cDim) {
+    swap(m, rs.m);
+    rs.m.clear();
     rs.r = 0;
     rs.c = 0;
   }
@@ -145,7 +148,7 @@ public:
   //  Populate a matrix with random values between min and max
   void rand(T min, T max, uint32_t seed = 0) {
     seed_seq s{ seed,
-                duration_cast<seconds>(hrc::now().time_since_epoch()).count() };
+                static_cast<uint32_t>(duration_cast<seconds>(hrc::now().time_since_epoch()).count()) };
     default_random_engine r(s);
     uniform_real_distribution<double> d(min, max);
     auto rng = bind(d, ref(r));

@@ -144,9 +144,9 @@ public:
 
   //  Populate a matrix with random values between min and max
   void rand(T min, T max, uint32_t seed = 0) {
-    default_random_engine r(
-        seed ? seed
-             : duration_cast<seconds>(hrc::now().time_since_epoch()).count());
+    seed_seq s{ seed,
+                duration_cast<seconds>(hrc::now().time_since_epoch()).count() };
+    default_random_engine r(s);
     uniform_real_distribution<double> d(min, max);
     auto rng = bind(d, ref(r));
     generate(m.begin(), m.end(), rng);

@@ -99,7 +99,7 @@ int main(int argc, char const *argv[]) {
   Matrix<int64_t> x(3,3,0);
   cout << x << endl;
 
-  x.tRand(3, 13, 7, 2);
+  x.tRand(3, 13, 7, 8);
   cout << x << endl;
 
   return 0;

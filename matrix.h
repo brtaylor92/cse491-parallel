@@ -172,7 +172,7 @@ public:
     uniform_real_distribution<double> d(min, max);
     vector<thread> t(threads);
     auto f = [&](uint32_t i) {
-      for(auto j = m.begin() + i*m.size(); j != m.begin() + (i+1)*m.size()/threads; j++) {
+      for(auto j = m.begin() + i*m.size()/threads; j != m.begin() + (i+1)*m.size()/threads; j++) {
         *j = d(r);
       }
     };
@@ -188,14 +188,6 @@ private:
   uint32_t rDim; //  Row dimension
   uint32_t cDim; //  Column dimension
   vector<T> m;              //  Data storage - cDim*r 
-
-  // void tRandFill(uint32_t &t, uint32_t &id, uniform_real_distribution<double> &d, 
-  //                default_random_engine &r) {
-  //   uint32_t offset = id * m.size()/t;
-  //   for(auto i = m.begin() + offset; i != m.begin() + (id+1)*m.size()/t; i++) {
-  //     *i = d(r);
-  //   }
-  // }
 };
 
 //  Add or multiply 2 matrices and return the result as a new matrix

@@ -38,27 +38,28 @@ public:
   Matrix() = default;
 
   //  Explicit single-arg c'tor
-  explicit Matrix(const uint32_t &dim) : r(dim), c(dim), m(rDim * cDim) {
+  explicit Matrix(const uint32_t &dim) : rDim(dim), cDim(dim), m(rDim * cDim) {
     if (!is_arithmetic<T>::value)
       throw BadType();
   }
 
   //  2-arg square c'tor
-  Matrix(const uint32_t &dim, T val) : r(dim), c(dim), m(rDim * cDim, val) {
+  Matrix(const uint32_t &dim, T val)
+      : rDim(dim), cDim(dim), m(rDim * cDim, val) {
     if (!is_arithmetic<T>::value)
       throw BadType();
   }
 
   //  3-arg multi-dim c'tor
   Matrix(const uint32_t &rows, const uint32_t &cols, T val)
-      : r(rows), c(cols), m(rDim * cDim, val) {
+      : rDim(rows), cDim(cols), m(rDim * cDim, val) {
     if (!is_arithmetic<T>::value)
       throw BadType();
   }
 
   //  Initializer list c'tor
   Matrix(initializer_list<initializer_list<T> > init)
-      : r(init.size()), c(init.begin()->size()) {
+      : rDim(init.size()), cDim(init.begin()->size()) {
     if (!is_arithmetic<T>::value)
       throw BadType();
     auto s = init.begin()->size();
@@ -71,21 +72,21 @@ public:
   }
 
   //  Move c'tor
-  Matrix(Matrix &&rs) : r(rs.rDim), c(rs.cDim) {
+  Matrix(Matrix &&rs) : rDim(rs.rDim), cDim(rs.cDim) {
     swap(m, rs.m);
     rs.m.clear();
-    rs.r = 0;
-    rs.c = 0;
+    rs.rDim = 0;
+    rs.cDim = 0;
   }
 
   //  Copy c'tor for operator=
-  Matrix(const Matrix &rs) : r(rs.rDim), c(rs.cDim), m(rs.m) {}
+  Matrix(const Matrix &rs) : rDim(rs.rDim), cDim(rs.cDim), m(rs.m) {}
 
   //  Operator= (assignment operator)
   Matrix &operator=(const Matrix &rs) {
     m = rs.m;
-    r = rs.rDim;
-    c = rs.cDim;
+    rDim = rs.rDim;
+    cDim = rs.cDim;
     return *this;
   }
 
@@ -106,10 +107,10 @@ public:
   inline uint32_t cols() const { return cDim; }
 
   bool operator==(const Matrix &rhs) const {
-    if(m.size() != rhs.m.size())
+    if (m.size() != rhs.m.size())
       return false;
-    for(auto i = 0; i < m.size(); i++)
-      if(m.at(i) != rhs.m.at(i))
+    for (auto i = 0; i < m.size(); i++)
+      if (m.at(i) != rhs.m.at(i))
         return false;
     return true;
   }
@@ -146,8 +147,7 @@ public:
   Matrix &mult(const T &s, Matrix &t) const {
     if (cDim != t.cDim || rDim != t.rDim)
       throw BadDim(t.rDim, t.cDim);
-    transform(m.begin(), m.end(), t.m.begin(),
-              bind(multiplies<T>(), _1, s));
+    transform(m.begin(), m.end(), t.m.begin(), bind(multiplies<T>(), _1, s));
     return t;
   }
 
@@ -156,8 +156,9 @@ public:
 
   //  Populate a matrix with random values between min and max
   void rand(T min, T max, uint32_t seed = 0) {
-    seed_seq s{ seed,
-                static_cast<uint32_t>(duration_cast<seconds>(hrc::now().time_since_epoch()).count()) };
+    seed_seq s{ seed, static_cast<uint32_t>(
+                          duration_cast<seconds>(hrc::now().time_since_epoch())
+                              .count()) };
     default_random_engine r(s);
     uniform_real_distribution<double> d(min, max);
     auto rng = bind(d, ref(r));
@@ -165,11 +166,9 @@ public:
   }
 
 private:
-  uint32_t r;
-  uint32_t c;
-  const uint32_t &rDim = r; //  Row dimension
-  const uint32_t &cDim = c; //  Column dimension
-  vector<T> m;              //  Data storage - cDim*r uint32_t
+  uint32_t rDim; //  Row dimension
+  uint32_t cDim; //  Column dimension
+  vector<T> m;   //  Data storage - cDim*r uint32_t
 };
 
 //  Add or multiply 2 matrices and return the result as a new matrix

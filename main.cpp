@@ -96,5 +96,11 @@ int main(int argc, char const *argv[]) {
   cout << "t1 == t3: " << (t1==t3?"yes":"no") << endl;
   cout << "t1 == t4: " << (t1==t4?"yes":"no") << endl;
 
+  Matrix<int64_t> x(3,3,0);
+  cout << x << endl;
+
+  x.tRand(3, 13, 7, 4);
+  cout << x << endl;
+
   return 0;
 }

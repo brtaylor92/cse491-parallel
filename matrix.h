@@ -10,6 +10,7 @@
 #include <random>
 #include <sstream>
 #include <string>
+#include <thread>
 #include <type_traits>
 #include <vector>
 
@@ -28,7 +29,7 @@ using std::ostream_iterator;
 using std::placeholders::_1;
 using std::plus;
 using std::seed_seq;
-using std::swap;
+using std::thread;
 using std::uniform_real_distribution;
 using std::vector;
 
@@ -44,8 +45,7 @@ public:
   }
 
   //  2-arg square c'tor
-  Matrix(const uint32_t &dim, T val)
-      : rDim(dim), cDim(dim), m(rDim * cDim, val) {
+  Matrix(const uint32_t &dim, T val) : rDim(dim), cDim(dim), m(rDim * cDim, val) {
     if (!is_arithmetic<T>::value)
       throw BadType();
   }
@@ -107,10 +107,10 @@ public:
   inline uint32_t cols() const { return cDim; }
 
   bool operator==(const Matrix &rhs) const {
-    if (m.size() != rhs.m.size())
+    if(m.size() != rhs.m.size())
       return false;
-    for (auto i = 0; i < m.size(); i++)
-      if (m.at(i) != rhs.m.at(i))
+    for(typename vector<T>::size_type i = 0; i < m.size(); i++)
+      if(m.at(i) != rhs.m.at(i))
         return false;
     return true;
   }
@@ -147,7 +147,8 @@ public:
   Matrix &mult(const T &s, Matrix &t) const {
     if (cDim != t.cDim || rDim != t.rDim)
       throw BadDim(t.rDim, t.cDim);
-    transform(m.begin(), m.end(), t.m.begin(), bind(multiplies<T>(), _1, s));
+    transform(m.begin(), m.end(), t.m.begin(),
+              bind(multiplies<T>(), _1, s));
     return t;
   }
 
@@ -156,19 +157,40 @@ public:
 
   //  Populate a matrix with random values between min and max
   void rand(T min, T max, uint32_t seed = 0) {
-    seed_seq s{ seed, static_cast<uint32_t>(
-                          duration_cast<seconds>(hrc::now().time_since_epoch())
-                              .count()) };
+    seed_seq s{ seed,
+                static_cast<uint32_t>(duration_cast<seconds>(hrc::now().time_since_epoch()).count()) };
     default_random_engine r(s);
     uniform_real_distribution<double> d(min, max);
     auto rng = bind(d, ref(r));
     generate(m.begin(), m.end(), rng);
   }
 
+  void tRand(T min, T max, uint32_t seed = 0, uint32_t threads = 0) {
+    seed_seq s{ seed,
+                static_cast<uint32_t>(duration_cast<seconds>(hrc::now().time_since_epoch()).count()) };
+    default_random_engine r(s);
+    uniform_real_distribution<double> d(min, max);
+    vector<thread> t(threads);
+    for(uint32_t i = 0; i < threads; i++) {
+      auto fill = bind(&Matrix::tRandFill, this, _1);
+      t[i] = thread(fill, threads, i, d, r);
+    }
+    for(auto &i : t)
+      i.join();
+  }
+
 private:
   uint32_t rDim; //  Row dimension
   uint32_t cDim; //  Column dimension
-  vector<T> m;   //  Data storage - cDim*r uint32_t
+  vector<T> m;              //  Data storage - cDim*r 
+
+  void tRandFill(uint32_t &t, uint32_t &id, uniform_real_distribution<double> &d, 
+                 default_random_engine &r) {
+    uint32_t offset = id * m.size()/t;
+    for(auto i = m.begin() + offset; i != m.begin() + (id+1)*m.size()/t; i++) {
+      *i = d(r);
+    }
+  }
 };
 
 //  Add or multiply 2 matrices and return the result as a new matrix

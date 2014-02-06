@@ -105,6 +105,15 @@ public:
 
   inline uint32_t cols() const { return cDim; }
 
+  bool operator==(const Matrix &rhs) const {
+    if(m.size() != rhs.m.size())
+      return false;
+    for(auto i = 0; i < m.size(); i++)
+      if(m.at(i) != rhs.m.at(i))
+        return false;
+    return true;
+  }
+
   //  Add a to b into t
   static Matrix &add(const Matrix &a, const Matrix &b, Matrix &t) {
     if (&a == &t || &b == &t)

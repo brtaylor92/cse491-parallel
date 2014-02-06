@@ -75,20 +75,26 @@ int main(int argc, char const *argv[]) {
   m.rand(0, 10);
   cout << "m: " << endl << m << endl;
 
-  microseconds dd{ 0 };
+  // microseconds dd{ 0 };
 
-  for (int i = 0; i < 10; i++) {
-    auto t1 = hrc::now();
-    bigMult();
-    auto t2 = hrc::now();
+  // for (int i = 0; i < 10; i++) {
+  //   auto t1 = hrc::now();
+  //   bigMult();
+  //   auto t2 = hrc::now();
 
-    dd += duration_cast<microseconds>(t2 - t1);
-  }
+  //   dd += duration_cast<microseconds>(t2 - t1);
+  // }
 
-  dd /= 10;
+  // dd /= 10;
 
-  cout << "Took " << duration_cast<milliseconds>(dd).count() << "ms ("
-       << static_cast<double>(dd.count()) / 1000000 << "s)" << endl;
+  // cout << "Took " << duration_cast<milliseconds>(dd).count() << "ms ("
+  //      << static_cast<double>(dd.count()) / 1000000 << "s)" << endl;
+
+  Matrix<int64_t> t1(3, 3, 3), t2 = t1, t3(3,3,2), t4(3,2,3);
+
+  cout << "t1 == t2: " << (t1==t2?"yes":"no") << endl;
+  cout << "t1 == t3: " << (t1==t3?"yes":"no") << endl;
+  cout << "t1 == t4: " << (t1==t4?"yes":"no") << endl;
 
   return 0;
 }

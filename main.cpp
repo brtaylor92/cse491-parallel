@@ -12,7 +12,7 @@ void bigMult() {
   Matrix<T> d1(sz), d2(sz), d3(sz);
   d1.rand(0, 1, 13);
   d2.rand(0, 1, 16);
-  Matrix<T>::mult(d1, d2, d3);
+  d1.mult(d2, d3);
 }
 
 int main(int argc, char const *argv[]) {
@@ -55,21 +55,21 @@ int main(int argc, char const *argv[]) {
 
   Matrix<int64_t> i(3, 2, 0);
   Matrix<int64_t> j{ { 1, 3 }, { 7, 11 }, { 5, 19 } };
-  Matrix<int64_t>::add(c, j, i);
+  c.add(j, i);
   cout << add(c, c) << endl;
   cout << "i = c+j: " << endl << i << endl;
-  cout << "c+j: " << endl << add<int64_t>(c, j) << endl;
+  cout << "c+j: " << endl << add(c, j) << endl;
 
   Matrix<int64_t> k(3, 2, 0);
-  Matrix<int64_t>::mult(e, c, k);
+  e.mult(c, k);
   cout << "k = e*c" << endl << "e: " << endl << e << endl << "c: " << endl << c
        << endl << "k: " << endl << k << endl;
   cout << "e*c: " << endl << mult<int64_t>(e, c) << endl;
 
   Matrix<int64_t> l(3, 2, 0);
-  Matrix<int64_t>::mult(3, k, l);
+  k.mult(3, l);
   cout << "l = 3*k: " << endl << "l: " << endl << l << endl;
-  cout << "3*k: " << endl << mult<int64_t>(3, k) << endl;
+  cout << "3*k: " << endl << mult(static_cast<int64_t>(3), k) << endl;
 
   Matrix<int64_t> m(4, 0);
   m.rand(0, 10);

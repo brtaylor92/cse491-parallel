@@ -115,38 +115,38 @@ public:
   }
 
   //  Add a to b into t
-  static Matrix &add(const Matrix &a, const Matrix &b, Matrix &t) {
-    if (&a == &t || &b == &t)
+  Matrix &add(const Matrix &b, Matrix &t) const {
+    if (this == &t || &b == &t)
       throw SelfAssign();
-    if (a.rDim != t.rDim || b.rDim != t.rDim)
+    if (rDim != t.rDim || b.rDim != t.rDim)
       throw BadDim(t.rDim, t.cDim);
-    if (a.cDim != t.cDim || b.cDim != t.cDim)
+    if (cDim != t.cDim || b.cDim != t.cDim)
       throw BadDim(t.rDim, t.cDim);
-    transform(a.m.begin(), a.m.end(), b.m.begin(), t.m.begin(), plus<T>());
+    transform(m.begin(), m.end(), b.m.begin(), t.m.begin(), plus<T>());
     return t;
   }
 
   //  Mult a by b into t
-  static Matrix &mult(const Matrix &a, const Matrix &b, Matrix &t) {
-    if (&a == &t || &b == &t)
+  Matrix &mult(const Matrix &b, Matrix &t) const {
+    if (this == &t || &b == &t)
       throw SelfAssign();
-    if (a.cDim != b.rDim)
-      throw BadDim(a.cDim, b.rDim);
-    if (t.rDim != a.rDim || t.cDim != b.cDim)
+    if (cDim != b.rDim)
+      throw BadDim(cDim, b.rDim);
+    if (t.rDim != rDim || t.cDim != b.cDim)
       throw BadDim(t.rDim, t.cDim);
     fill(t.m.begin(), t.m.end(), 0);
-    for (uint32_t r = 0; r < a.rDim; ++r)
-      for (uint32_t i = 0; i < a.cDim; ++i)
+    for (uint32_t r = 0; r < rDim; ++r)
+      for (uint32_t i = 0; i < cDim; ++i)
         for (uint32_t c = 0; c < b.cDim; ++c)
-          t.m[r * t.cDim + c] += a.m[r * a.cDim + i] * b.m[i * b.cDim + c];
+          t.m[r * t.cDim + c] += m[r * cDim + i] * b.m[i * b.cDim + c];
     return t;
   }
 
   //  Mult t by a scalar s
-  static Matrix &mult(const T &s, const Matrix &a, Matrix &t) {
-    if (a.cDim != t.cDim || a.rDim != t.rDim)
+  Matrix &mult(const T &s, Matrix &t) const {
+    if (cDim != t.cDim || rDim != t.rDim)
       throw BadDim(t.rDim, t.cDim);
-    transform(a.m.begin(), a.m.end(), t.m.begin(),
+    transform(m.begin(), m.end(), t.m.begin(),
               bind(multiplies<T>(), _1, s));
     return t;
   }
@@ -175,21 +175,21 @@ private:
 //  Add or multiply 2 matrices and return the result as a new matrix
 template <typename T> Matrix<T> add(const Matrix<T> &a, const Matrix<T> &b) {
   Matrix<T> c(a.rows(), a.cols(), 0);
-  Matrix<T>::add(a, b, c);
+  a.add(b, c);
   return c;
 }
 
 //  Multiply a by b, return the result
 template <typename T> Matrix<T> mult(const Matrix<T> &a, const Matrix<T> &b) {
   Matrix<T> c(a.rows(), b.cols(), 0);
-  Matrix<T>::mult(a, b, c);
+  a.mult(b, c);
   return c;
 }
 
 //  Multiply a by a scalar s, return the result
 template <typename T> Matrix<T> mult(const T &s, const Matrix<T> &a) {
   Matrix<T> c(a.rows(), a.cols(), 0);
-  Matrix<T>::mult(s, a, c);
+  a.mult(s, c);
   return c;
 }
 

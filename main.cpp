@@ -7,12 +7,32 @@ using std::endl;
 using std::move;
 
 void bigMult() {
-  constexpr int sz = 500;
+  constexpr int sz = 1000;
+  constexpr int t = 16;
   using T = double;
   Matrix<T> d1(sz), d2(sz), d3(sz);
-  d1.rand(0, 1, 13);
-  d2.rand(0, 1, 16);
+  d1.tRand(0, 1, 13, t);
+  d2.tRand(0, 1, 16, t);
   d1.mult(d2, d3);
+}
+
+void randFill() {
+  using T = double;
+  constexpr int sz = 1000;
+  Matrix<T> d1(sz), d2(sz), d3(sz);
+  d1.rand(0,1,10);
+  d2.rand(0,1,12);
+  d3.rand(0,1,14);
+}
+
+void tRandFill() {
+  using T = double;
+  constexpr int sz = 1000;
+  constexpr int t = 12;
+  Matrix<T> d1(sz), d2(sz), d3(sz);
+  d1.tRand(0,1,10,t);
+  d2.tRand(0,1,12,t);
+  d3.tRand(0,1,14,t);
 }
 
 int main(int argc, char const *argv[]) {
@@ -75,11 +95,28 @@ int main(int argc, char const *argv[]) {
   m.rand(0, 10);
   cout << "m: " << endl << m << endl;
 
-  // microseconds dd{ 0 };
+  microseconds dd{ 0 };
+
+  for (int i = 0; i < 10; i++) {
+    auto t1 = hrc::now();
+    bigMult(); 
+    // randFill();
+    auto t2 = hrc::now();
+
+    dd += duration_cast<microseconds>(t2 - t1);
+  }
+
+  dd /= 10;
+
+  cout << "Took " << duration_cast<milliseconds>(dd).count() << "ms ("
+       << static_cast<double>(dd.count()) / 1000000 << "s)" << endl;
+
+  // dd -= dd;
 
   // for (int i = 0; i < 10; i++) {
   //   auto t1 = hrc::now();
-  //   bigMult();
+  //   //bigMult(); 
+  //   tRandFill();
   //   auto t2 = hrc::now();
 
   //   dd += duration_cast<microseconds>(t2 - t1);

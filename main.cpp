@@ -6,14 +6,24 @@ using std::chrono::milliseconds;
 using std::endl;
 using std::move;
 
-void bigMult() {
-  constexpr int sz = 1000;
+void tBigAdd() {
+  constexpr int sz = 10000;
   constexpr int t = 16;
   using T = double;
-  Matrix<T> d1(sz), d2(sz), d3(sz);
+  Matrix<T> d1(sz), d2(sz), d3(sz), d4(sz);
   d1.tRand(0, 1, 13, t);
   d2.tRand(0, 1, 16, t);
-  d1.mult(d2, d3);
+  d1.tAdd(d2, d3, t);
+}
+
+void bigAdd() {
+  constexpr int sz = 10000;
+  constexpr int t = 16;
+  using T = double;
+  Matrix<T> d1(sz), d2(sz), d3(sz), d4(sz);
+  d1.tRand(0, 1, 13, t);
+  d2.tRand(0, 1, 16, t);
+  d1.add(d2, d3);
 }
 
 void randFill() {
@@ -75,7 +85,7 @@ int main(int argc, char const *argv[]) {
 
   Matrix<int64_t> i(3, 2, 0);
   Matrix<int64_t> j{ { 1, 3 }, { 7, 11 }, { 5, 19 } };
-  c.add(j, i);
+  c.tAdd(j, i, 8);
   cout << add(c, c) << endl;
   cout << "i = c+j: " << endl << i << endl;
   cout << "c+j: " << endl << add(c, j) << endl;
@@ -99,7 +109,7 @@ int main(int argc, char const *argv[]) {
 
   for (int i = 0; i < 10; i++) {
     auto t1 = hrc::now();
-    bigMult(); 
+    bigAdd(); 
     // randFill();
     auto t2 = hrc::now();
 
@@ -111,21 +121,21 @@ int main(int argc, char const *argv[]) {
   cout << "Took " << duration_cast<milliseconds>(dd).count() << "ms ("
        << static_cast<double>(dd.count()) / 1000000 << "s)" << endl;
 
-  // dd -= dd;
+  dd -= dd;
 
-  // for (int i = 0; i < 10; i++) {
-  //   auto t1 = hrc::now();
-  //   //bigMult(); 
-  //   tRandFill();
-  //   auto t2 = hrc::now();
+  for (int i = 0; i < 10; i++) {
+    auto t1 = hrc::now();
+    //bigMult(); 
+    tBigAdd();
+    auto t2 = hrc::now();
 
-  //   dd += duration_cast<microseconds>(t2 - t1);
-  // }
+    dd += duration_cast<microseconds>(t2 - t1);
+  }
 
-  // dd /= 10;
+  dd /= 10;
 
-  // cout << "Took " << duration_cast<milliseconds>(dd).count() << "ms ("
-  //      << static_cast<double>(dd.count()) / 1000000 << "s)" << endl;
+  cout << "Took " << duration_cast<milliseconds>(dd).count() << "ms ("
+       << static_cast<double>(dd.count()) / 1000000 << "s)" << endl;
 
   Matrix<int64_t> t1(3, 3, 3), t2 = t1, t3(3,3,2), t4(3,2,3);
 

@@ -127,6 +127,29 @@ public:
     return t;
   }
 
+  Matrix &tAdd(const Matrix &b, Matrix &t, uint32_t n=1) const {
+    if (this == &t || &b == &t)
+      throw SelfAssign();
+    if (rDim != t.rDim || b.rDim != t.rDim)
+      throw BadDim(t.rDim, t.cDim);
+    if (cDim != t.cDim || b.cDim != t.cDim)
+      throw BadDim(t.rDim, t.cDim);
+    auto f = [&](uint32_t i) {
+      transform(m.begin()+i*m.size()/n, m.begin()+(i+1)*m.size()/n, b.m.begin()+i*m.size()/n, t.m.begin()+i*m.size()/n, plus<T>());
+      /*for(typename vector<T>::size_type j = i*m.size()/n; j < (i+1)*m.size()/n; j++) {
+        t.m.at(j) = m.at(j) + b.m.at(j);
+      }*/
+    };
+
+    vector<thread> threads(n);
+    for(uint32_t i = 0; i < n; i++) {
+      threads[i] = thread(f, i);
+    }
+    for(auto &i : threads)
+      i.join();
+    return t;
+  }
+
   //  Mult a by b into t
   Matrix &mult(const Matrix &b, Matrix &t) const {
     if (this == &t || &b == &t)

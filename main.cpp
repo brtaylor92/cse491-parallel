@@ -133,6 +133,18 @@ int main(int argc, char const *argv[]) {
 
   dd -= dd;
 */
+  
+  //parallelism testing
+  int threadcount = 16;
+  constexpr int sz = 100;
+  using T = double;
+  Matrix<T> m1(sz), m2(sz), m3(sz);
+  m1.tRand(0, 1, 13, threadcount);
+  m2.tRand(0, 1, 16, threadcount);
+  m3.tMult(m1, m2, threadcount);
+  cout << "correctness test " << (m3 == mult<T>(m1,m2) ? "passed" : "failed") << endl;
+
+  //single thread timing
   for (int i = 0; i < 10; i++) {
     auto t1 = hrc::now();
     tBigMult(1);
@@ -140,13 +152,9 @@ int main(int argc, char const *argv[]) {
 
     d1 += duration_cast<microseconds>(t2 - t1);
   }
-
   d1 /= 10;
 
-  cout << "1 thread took " << duration_cast<milliseconds>(d1).count() << "ms ("
-       << static_cast<double>(d1.count()) / 1000000 << "s)" << endl;
-
-  int threadcount = 16;
+  //multithread timing
   for (int i = 0; i < 10; i++) {
     auto t1 = hrc::now();
     tBigMult(threadcount);
@@ -154,13 +162,15 @@ int main(int argc, char const *argv[]) {
 
     d2 += duration_cast<microseconds>(t2 - t1);
   }
-
   d2 /= 10;
 
-  cout << threadcount << " threads took " << duration_cast<milliseconds>(d2).count() << "ms ("
-       << static_cast<double>(d2.count()) / 1000000 << "s)" << endl;
-
-  cout << "Speedup: " << 1.0*d1/d2 << endl;
+  //parallelism outputs
+  cout << "1 thread took " << duration_cast<milliseconds>(d1).count() << "ms ("
+       << static_cast<double>(d1.count()) / 1000000 << "s)" << endl
+       << threadcount << " threads took " << duration_cast<milliseconds>(d2).count() << "ms ("
+       << static_cast<double>(d2.count()) / 1000000 << "s)" << endl
+       << "Speedup: " << 1.0*d1/d2 
+       << "    (fraction of linear: " << 1.0*d1/(d2*threadcount) << ")" << endl << endl;
 
   Matrix<int64_t> t1(3, 3, 3), t2 = t1, t3(3,3,2), t4(3,2,3);
 

@@ -26,6 +26,16 @@ void bigAdd() {
   d1.add(d2, d3);
 }
 
+void tBigMult(int t) {
+  constexpr int sz = 1000;
+  using T = double;
+  Matrix<T> d1(sz), d2(sz), d3(sz), d4(sz);
+  d1.tRand(0, 1, 13, t);
+  d2.tRand(0, 1, 16, t);
+  d1.tMult(d2, d3, t);
+}
+
+
 void randFill() {
   using T = double;
   constexpr int sz = 1000;
@@ -105,9 +115,9 @@ int main(int argc, char const *argv[]) {
   m.rand(0, 10);
   cout << "m: " << endl << m << endl;
 
-  microseconds dd{ 0 };
+  microseconds d1{ 0 }, d2{ 0 };
 
-  for (int i = 0; i < 10; i++) {
+  /*for (int i = 0; i < 10; i++) {
     auto t1 = hrc::now();
     bigAdd(); 
     // randFill();
@@ -122,20 +132,35 @@ int main(int argc, char const *argv[]) {
        << static_cast<double>(dd.count()) / 1000000 << "s)" << endl;
 
   dd -= dd;
-
+*/
   for (int i = 0; i < 10; i++) {
     auto t1 = hrc::now();
-    //bigMult(); 
-    tBigAdd();
+    tBigMult(1);
     auto t2 = hrc::now();
 
-    dd += duration_cast<microseconds>(t2 - t1);
+    d1 += duration_cast<microseconds>(t2 - t1);
   }
 
-  dd /= 10;
+  d1 /= 10;
 
-  cout << "Took " << duration_cast<milliseconds>(dd).count() << "ms ("
-       << static_cast<double>(dd.count()) / 1000000 << "s)" << endl;
+  cout << "1 thread took " << duration_cast<milliseconds>(d1).count() << "ms ("
+       << static_cast<double>(d1.count()) / 1000000 << "s)" << endl;
+
+  int threadcount = 16;
+  for (int i = 0; i < 10; i++) {
+    auto t1 = hrc::now();
+    tBigMult(threadcount);
+    auto t2 = hrc::now();
+
+    d2 += duration_cast<microseconds>(t2 - t1);
+  }
+
+  d2 /= 10;
+
+  cout << threadcount << " threads took " << duration_cast<milliseconds>(d2).count() << "ms ("
+       << static_cast<double>(d2.count()) / 1000000 << "s)" << endl;
+
+  cout << "Speedup: " << 1.0*d1/d2 << endl;
 
   Matrix<int64_t> t1(3, 3, 3), t2 = t1, t3(3,3,2), t4(3,2,3);
 

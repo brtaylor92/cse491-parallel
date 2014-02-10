@@ -166,6 +166,30 @@ public:
     return t;
   }
 
+  Matrix &tMult(const Matrix &b, Matrix &t, uint32_t n=1) const {
+    if (this == &t || &b == &t)
+      throw SelfAssign();
+    if (cDim != b.rDim)
+      throw BadDim(cDim, b.rDim);
+    if (t.rDim != rDim || t.cDim != b.cDim)
+      throw BadDim(t.rDim, t.cDim);
+    fill(t.m.begin(), t.m.end(), 0);
+    
+    auto f = [&](uint32_t i) {
+      for (uint32_t r = i*rDim/n; r < (i+1)*rDim/n; ++r)
+        for (uint32_t i = 0; i < cDim; ++i)
+          for (uint32_t c = 0; c < b.cDim; ++c)
+            t.m[r * t.cDim + c] += m[r * cDim + i] * b.m[i * b.cDim + c];
+    };
+
+    vector<thread> threads(n);
+    for(uint32_t i = 0; i < n; i++)
+      threads[i] = thread(f, i);
+    for(auto &i : threads)
+      i.join();
+    return t;
+  }
+
   //  Mult t by a scalar s
   Matrix &mult(const T &s, Matrix &t) const {
     if (cDim != t.cDim || rDim != t.rDim)

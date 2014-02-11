@@ -6,11 +6,10 @@ using std::chrono::milliseconds;
 using std::endl;
 using std::move;
 
-void tBigAdd() {
+void tBigAdd(int t) {
   constexpr int sz = 10000;
-  constexpr int t = 16;
   using T = double;
-  Matrix<T> d1(sz), d2(sz), d3(sz), d4(sz);
+  Matrix<T> d1(sz), d2(sz), d3(sz);
   d1.tRand(0, 1, 13, t);
   d2.tRand(0, 1, 16, t);
   d1.tAdd(d2, d3, t);
@@ -20,7 +19,7 @@ void bigAdd() {
   constexpr int sz = 10000;
   constexpr int t = 16;
   using T = double;
-  Matrix<T> d1(sz), d2(sz), d3(sz), d4(sz);
+  Matrix<T> d1(sz), d2(sz), d3(sz);
   d1.tRand(0, 1, 13, t);
   d2.tRand(0, 1, 16, t);
   d1.add(d2, d3);
@@ -29,7 +28,7 @@ void bigAdd() {
 void tBigMult(int t) {
   constexpr int sz = 1000;
   using T = double;
-  Matrix<T> d1(sz), d2(sz), d3(sz), d4(sz);
+  Matrix<T> d1(sz), d2(sz), d3(sz);
   d1.tRand(0, 1, 13, t);
   d2.tRand(0, 1, 16, t);
   d1.tMult(d2, d3, t);
@@ -45,10 +44,9 @@ void randFill() {
   d3.rand(0,1,14);
 }
 
-void tRandFill() {
+void tBigRand(int t) {
   using T = double;
   constexpr int sz = 1000;
-  constexpr int t = 12;
   Matrix<T> d1(sz), d2(sz), d3(sz);
   d1.tRand(0,1,10,t);
   d2.tRand(0,1,12,t);
@@ -136,18 +134,19 @@ int main(int argc, char const *argv[]) {
   
   //parallelism testing
   int threadcount = 16;
-  constexpr int sz = 100;
+ /* constexpr int sz = 100;
   using T = double;
   Matrix<T> m1(sz), m2(sz), m3(sz);
   m1.tRand(0, 1, 13, threadcount);
   m2.tRand(0, 1, 16, threadcount);
-  m3.tMult(m1, m2, threadcount);
+  m1.tMult(m2, m3, threadcount);
   cout << "correctness test " << (m3 == mult<T>(m1,m2) ? "passed" : "failed") << endl;
+*/
 
   //single thread timing
   for (int i = 0; i < 10; i++) {
     auto t1 = hrc::now();
-    tBigMult(1);
+    tBigRand(1);
     auto t2 = hrc::now();
 
     d1 += duration_cast<microseconds>(t2 - t1);
@@ -157,7 +156,7 @@ int main(int argc, char const *argv[]) {
   //multithread timing
   for (int i = 0; i < 10; i++) {
     auto t1 = hrc::now();
-    tBigMult(threadcount);
+    tBigRand(threadcount);
     auto t2 = hrc::now();
 
     d2 += duration_cast<microseconds>(t2 - t1);

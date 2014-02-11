@@ -136,15 +136,13 @@ public:
       throw BadDim(t.rDim, t.cDim);
     auto f = [&](uint32_t i) {
       transform(m.begin()+i*m.size()/n, m.begin()+(i+1)*m.size()/n, b.m.begin()+i*m.size()/n, t.m.begin()+i*m.size()/n, plus<T>());
-      /*for(typename vector<T>::size_type j = i*m.size()/n; j < (i+1)*m.size()/n; j++) {
-        t.m.at(j) = m.at(j) + b.m.at(j);
-      }*/
     };
 
-    vector<thread> threads(n);
-    for(uint32_t i = 0; i < n; i++) {
+    vector<thread> threads(n-1);
+    for(uint32_t i = 0; i < n-1; i++) {
       threads[i] = thread(f, i);
     }
+    f(n-1);
     for(auto &i : threads)
       i.join();
     return t;
@@ -182,9 +180,10 @@ public:
             t.m[r * t.cDim + c] += m[r * cDim + i] * b.m[i * b.cDim + c];
     };
 
-    vector<thread> threads(n);
-    for(uint32_t i = 0; i < n; i++)
+    vector<thread> threads(n-1);
+    for(uint32_t i = 0; i < n-1; i++)
       threads[i] = thread(f, i);
+    f(n-1);
     for(auto &i : threads)
       i.join();
     return t;
@@ -212,21 +211,22 @@ public:
     generate(m.begin(), m.end(), rng);
   }
 
-  void tRand(T min, T max, uint32_t seed = 0, uint32_t threads = 0) {
+  void tRand(T min, T max, uint32_t seed = 0, uint32_t n = 0) {
     seed_seq s{ seed,
                 static_cast<uint32_t>(duration_cast<seconds>(hrc::now().time_since_epoch()).count()) };
     default_random_engine r(s);
     uniform_real_distribution<double> d(min, max);
-    vector<thread> t(threads);
     auto f = [&](uint32_t i) {
-      for(auto j = m.begin() + i*m.size()/threads; j != m.begin() + (i+1)*m.size()/threads; j++) {
+      for(auto j = m.begin() + i*m.size()/n; j != m.begin() + (i+1)*m.size()/n; j++) {
         *j = d(r);
       }
     };
 
-    for(uint32_t i = 0; i < threads; i++) {
+    vector<thread> t(n-1);
+    for(uint32_t i = 0; i < n-1; i++) {
       t[i] = thread(f, i);
     }
+    f(n-1);
     for(auto &i : t)
       i.join();
   }

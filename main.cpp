@@ -177,6 +177,12 @@ int main(int argc, char const *argv[]) {
   cout << x << endl;
 */
 
+  Matrix<int64_t> s(5);
+  s.rand(0,100);
+  cout << s << endl;
+  s.shearSort();
+  cout << s << endl;
+
   Matrix<int64_t> t(5, 3, 2);
   t.rand(0,100);
   cout << t << endl;

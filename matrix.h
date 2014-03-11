@@ -234,30 +234,40 @@ public:
   }
 
   void shearSort() {
+    //convert the matrix to a square by inserting filler zeroes
     uint32_t sqDim = uint32_t(std::ceil(std::sqrt(rows()*cols())));
     uint32_t fill = sqDim*sqDim-rows()*cols();
     for(uint32_t i = 0; i<fill; i++) m.push_back(0);
-    for(auto ben = 0; ben < log(sqDim); ben++) {
+    
+    //shearsort phases
+    for(auto phasecount = 0; phasecount < log(sqDim); phasecount++) {
+      
+      //sort rows snakewise; note the xor in the custom comp function
       for(uint32_t i = 0; i < sqDim; i++) {
         sort(m.begin() + i*sqDim, m.begin() + (i+1)*sqDim, [&](T a, T b) {return (a < b)^(i % 2);});
       }
+
+      //sort columns (copies to a vector, sorts there, copies back)
       vector<T> col_refs;
       for(auto i = m.begin(); i != m.begin()+sqDim; i++) {
         for(auto j = i; j < m.end(); j += sqDim) {
           col_refs.push_back(*j);
         }
         sort(col_refs.begin(), col_refs.end());
-        int k = 0;
-        for(auto j = i; j < m.end(); j += sqDim) {
-          *j = col_refs[k++];
+        for(uint32_t j = 0; j < sqDim; j++) {
+          *(i+j*sqDim) = col_refs[j];
         }
         col_refs.clear();
       } 
     }
-    for(auto i = m.begin(); i<m.end();i+=sqDim) sort(m.begin(),m.end());
+
+    //last phase of sort, leaves data in regular sort order
+    for(auto i = m.begin(); i<m.end(); i+=sqDim) sort(m.begin(),m.end());
+    
+    //delete filler data
     if(fill!=0) {
-        auto loc = std::find(m.begin(),m.end(),0);
-        m.erase(loc, loc+fill);
+      auto loc = std::find(m.begin(),m.end(),0);
+      m.erase(loc, loc+fill);
     }
   }
 

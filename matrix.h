@@ -34,6 +34,7 @@ using std::sort;
 using std::thread;
 using std::uniform_real_distribution;
 using std::vector;
+using std::max_element;
 
 template <typename T> class Matrix {
 public:
@@ -235,9 +236,11 @@ public:
 
   void shearSort() {
     //convert the matrix to a square by inserting filler zeroes
-    uint32_t sqDim = uint32_t(std::ceil(std::sqrt(rows()*cols())));
-    uint32_t fill = sqDim*sqDim-rows()*cols();
-    for(uint32_t i = 0; i<fill; i++) m.push_back(0);
+    uint32_t sqDim;
+    if(rows() != cols()) {
+      sqDim = uint32_t(ceil(sqrt(rows()*cols())));
+      m.resize(sqDim*sqDim, *max_element(m.begin(), m.end()));
+    } else sqDim = rows();
     
     //shearsort phases
     for(auto phasecount = 0; phasecount < log(sqDim); phasecount++) {
@@ -265,10 +268,7 @@ public:
     for(auto i = m.begin(); i<m.end(); i+=sqDim) sort(m.begin(),m.end());
     
     //delete filler data
-    if(fill!=0) {
-      auto loc = std::find(m.begin(),m.end(),0);
-      m.erase(loc, loc+fill);
-    }
+    if(rows() != cols()) m.resize(rows()*cols());
   }
 
 private:

@@ -177,7 +177,7 @@ int main(int argc, char const *argv[]) {
   cout << x << endl;
 */
 
-  Matrix<int64_t> t(5);
+  Matrix<int64_t> t(5, 3, 2);
   t.rand(0,100);
   cout << t << endl;
   t.shearSort();

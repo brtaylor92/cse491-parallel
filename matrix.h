@@ -234,25 +234,30 @@ public:
   }
 
   void shearSort() {
-    for(auto ben = 0; ben < log(rows())+1; ben++) {
-      std::cout << "iteration "<< ben << ":\n" << *this << endl;
-      for(uint32_t i = 0; i < rows(); i++) {
-        sort(m.begin() + i*cols(), m.begin() + (i+1)*cols(), [&](T a, T b) {return (a < b)^(i % 2);});
+    uint32_t sqDim = uint32_t(std::ceil(std::sqrt(rows()*cols())));
+    uint32_t fill = sqDim*sqDim-rows()*cols();
+    for(uint32_t i = 0; i<fill; i++) m.push_back(0);
+    for(auto ben = 0; ben < log(sqDim); ben++) {
+      for(uint32_t i = 0; i < sqDim; i++) {
+        sort(m.begin() + i*sqDim, m.begin() + (i+1)*sqDim, [&](T a, T b) {return (a < b)^(i % 2);});
       }
-      std::cout << *this << endl;
       vector<T> col_refs;
-      for(auto i = m.begin(); i != m.begin()+cols(); i++) {
-        for(auto j = i; j < m.end(); j += cols()) {
+      for(auto i = m.begin(); i != m.begin()+sqDim; i++) {
+        for(auto j = i; j < m.end(); j += sqDim) {
           col_refs.push_back(*j);
         }
         sort(col_refs.begin(), col_refs.end());
         int k = 0;
-        for(auto j = i; j < m.end(); j += cols()) {
+        for(auto j = i; j < m.end(); j += sqDim) {
           *j = col_refs[k++];
         }
         col_refs.clear();
-      }
-    
+      } 
+    }
+    for(auto i = m.begin(); i<m.end();i+=sqDim) sort(m.begin(),m.end());
+    if(fill!=0) {
+        auto loc = std::find(m.begin(),m.end(),0);
+        m.erase(loc, loc+fill);
     }
   }
 

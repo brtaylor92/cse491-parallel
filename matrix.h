@@ -13,6 +13,7 @@
 #include <thread>
 #include <type_traits>
 #include <vector>
+#include <cmath>
 
 #include "./exceptions.h"
 
@@ -29,6 +30,7 @@ using std::ostream_iterator;
 using std::placeholders::_1;
 using std::plus;
 using std::seed_seq;
+using std::sort;
 using std::thread;
 using std::uniform_real_distribution;
 using std::vector;
@@ -229,6 +231,29 @@ public:
     f(n-1);
     for(auto &i : t)
       i.join();
+  }
+
+  void shearSort() {
+    for(auto ben = 0; ben < log(rows())+1; ben++) {
+      std::cout << "iteration "<< ben << ":\n" << *this << endl;
+      for(uint32_t i = 0; i < rows(); i++) {
+        sort(m.begin() + i*cols(), m.begin() + (i+1)*cols(), [&](T a, T b) {return (a < b)^(i % 2);});
+      }
+      std::cout << *this << endl;
+      vector<T> col_refs;
+      for(auto i = m.begin(); i != m.begin()+cols(); i++) {
+        for(auto j = i; j < m.end(); j += cols()) {
+          col_refs.push_back(*j);
+        }
+        sort(col_refs.begin(), col_refs.end());
+        int k = 0;
+        for(auto j = i; j < m.end(); j += cols()) {
+          *j = col_refs[k++];
+        }
+        col_refs.clear();
+      }
+    
+    }
   }
 
 private:

@@ -121,7 +121,7 @@ int main(int argc, char const *argv[]) {
   cout << "m: " << endl << m << endl;
 */
 
-  //parallelism testing
+  /*//parallelism testing
   microseconds d1{ 0 }, d2{ 0 };
   int threadcount = 16;
   constexpr int sz = 100;
@@ -162,7 +162,7 @@ int main(int argc, char const *argv[]) {
          << static_cast<double>(d2.count()) / 1000000 << "s)" << endl
          << "Speedup: " << 1.0*d1/d2 
          << "    (fraction of linear: " << 1.0*d1/(d2*tnum) << ")" << endl << endl;
-  }
+  }*/
 
   /*Matrix<int64_t> t1(3, 3, 3), t2 = t1, t3(3,3,2), t4(3,2,3);
 
@@ -176,5 +176,12 @@ int main(int argc, char const *argv[]) {
   x.tRand(3, 13, 7, 8);
   cout << x << endl;
 */
+
+  Matrix<int64_t> t(5);
+  t.rand(0,100);
+  cout << t << endl;
+  t.shearSort();
+  cout << t << endl;
+
   return 0;
 }

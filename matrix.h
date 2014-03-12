@@ -271,6 +271,43 @@ public:
     //delete filler data
     if(rows() != cols()) m.resize(rows()*cols());
   }
+  
+  /*void tShearSort() {
+    //convert the matrix to a square by inserting filler zeroes
+    uint32_t sqDim;
+    if(rows() != cols()) {
+      sqDim = uint32_t(ceil(sqrt(rows()*cols())));
+      m.resize(sqDim*sqDim, *max_element(m.begin(), m.end()));
+    } else sqDim = rows();
+    
+    //shearsort phases
+    for(auto phasecount = 0; phasecount < log(sqDim); phasecount++) {
+      
+      //sort rows snakewise; note the xor in the custom comp function
+      for(uint32_t i = 0; i < sqDim; i++) {
+        sort(m.begin() + i*sqDim, m.begin() + (i+1)*sqDim, [&](T a, T b) {return (a < b)^(i % 2);});
+      }
+
+      //sort columns (copies to a vector, sorts there, copies back)
+      vector<T> col_refs;
+      for(auto i = m.begin(); i != m.begin()+sqDim; i++) {
+        for(auto j = i; j < m.end(); j += sqDim) {
+          col_refs.push_back(*j);
+        }
+        sort(col_refs.begin(), col_refs.end());
+        for(uint32_t j = 0; j < sqDim; j++) {
+          *(i+j*sqDim) = col_refs[j];
+        }
+        col_refs.clear();
+      } 
+    }
+
+    //last phase of sort, leaves data in regular sort order
+    for(auto i = m.begin(); i<m.end(); i+=sqDim) sort(m.begin(),m.end());
+    
+    //delete filler data
+    if(rows() != cols()) m.resize(rows()*cols());
+  }*/
 
 private:
   uint32_t rDim; //  Row dimension

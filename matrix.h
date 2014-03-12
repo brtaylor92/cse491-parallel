@@ -16,6 +16,7 @@
 #include <cmath>
 
 #include "./exceptions.h"
+#include "./tQueue.h"
 
 using std::default_random_engine;
 using std::endl;

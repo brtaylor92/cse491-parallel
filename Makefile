@@ -7,7 +7,7 @@ LDLIB = -pthread
 matrix: main.o
 	$(CXX) $(CPPFLAGS) $(CPPOPTIM) $^ -o $@ $(LDLIB)
 
-main.o: main.cpp matrix.h exceptions.h
+main.o: main.cpp matrix.h exceptions.h tQueue.h
 	$(CXX) $(CPPFLAGS) $(CPPOPTIM) -c $< $(LDLIB)
 
 clean:

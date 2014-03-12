@@ -6,12 +6,9 @@ using std::atomic;
 
 template <class T> class tQueue {
   public:
-
     explicit tQueue() : inUse(false) {};
 
-    explicit tQueue(const Container& cont) : inUse(false), q(cont) {};
-
-    ~tQueue = default;
+    ~tQueue() = default;
 
     T pop() {
       getRights();
@@ -30,9 +27,9 @@ template <class T> class tQueue {
 
   private:
     atomic<bool> inUse;
-    queue q;
+    queue<T> q;
 
     void getRights() {
       while(!inUse.exchange(true));
     }
-}
+};

@@ -42,7 +42,7 @@ int main(int argc, char const *argv[])
 		return 1;
 	}
 
-	SDL_Window *window = SDL_CreateWindow("Lesson 2", 100, 100, width,
+	SDL_Window *window = SDL_CreateWindow("Game of Life", 100, 100, width,
 		height, SDL_WINDOW_SHOWN);
 	if(!window) {
 		logSDLError("CreateWindow");

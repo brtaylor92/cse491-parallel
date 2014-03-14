@@ -195,6 +195,7 @@ int main(int argc, char const *argv[]) {
   Matrix<int64_t> t(5, 3, 2);
   t.rand(0,100);
   cout << t << endl;
+<<<<<<< HEAD
   t.tShearSort(20);
   cout << t << endl;*/
 

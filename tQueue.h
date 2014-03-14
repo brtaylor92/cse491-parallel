@@ -24,13 +24,15 @@ template <class T> class TQueue {
 
     ~TQueue() = default;
 
-    bool pop(T &val) {
+    size_t pop(T &val) {
       while(inUse.exchange(true));
-      if(empty()) return false;
-      val = q.front();
-      q.pop();
+      size_t oldSize = q.size();
+      if(oldSize) {
+        val = q.front();
+        q.pop();
+      }
       inUse = false;
-      return true;
+      return oldSize;
     }
     
     void push(T val) {

@@ -180,13 +180,13 @@ int main(int argc, char const *argv[]) {
   Matrix<int64_t> s(5);
   s.rand(0,100);
   cout << s << endl;
-  s.shearSort();
+  s.tShearSort(1);
   cout << s << endl;
 
   Matrix<int64_t> t(5, 3, 2);
   t.rand(0,100);
   cout << t << endl;
-  t.shearSort();
+  t.tShearSort(1);
   cout << t << endl;
 
   return 0;

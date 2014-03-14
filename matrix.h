@@ -288,6 +288,7 @@ public:
 
   void tShearSort(uint32_t numThreads) {
     vector<thread> threadPool(numThreads);
+    atomic<int> workLeft(numThreads);
     uint32_t sqDim;
     if (rows() != cols()) {
       sqDim = uint32_t(ceil(sqrt(rows() * cols())));
@@ -295,20 +296,18 @@ public:
     } else {
       sqDim = rows();
     }
+    uint32_t phaseCount = log(sqDim)+1;
 
-    TQueue<uint32_t> masterQueue;
-    for (uint32_t i = 0; i < sqDim; i++)
-      masterQueue.push(i);
+    TQueue<uint32_t> q;
+    for(uint32_t i = 0; i < sqDim; i++)
+      q.push(i);
 
-    // start parallel (needs to be parallelized)
-    for (auto phasecount = 0; phasecount < log(sqDim); phasecount++) {
-
-      
+    for(uint32_t i = 0; i < numThreads; i++)
+      threadPool[i] = thread(&Matrix::tInnerSort, this, std::ref(q), sqDim, numThreads, std::ref(workLeft), 
+                             std::ref(phaseCount), i);
+    for(auto &i : threadPool) {
+      i.join();
     }
-    for (auto i = m.begin(); i < m.end(); i += sqDim)
-      sort(m.begin(), m.end());
-    // end parallel
-
     // delete filler data
     if (rows() != cols())
       m.resize(rows() * cols());
@@ -319,8 +318,8 @@ private:
   uint32_t cDim; //  Column dimension
   vector<T> m;   //  Data storage - cDim*r
 
-  void tInnerSort(TQueue<uint32_t> &q, const uint32_t sqDim, const uint32_t numThreads, atomic<int> &workLeft, 
-                  uint32_t &phaseCount, const uint32_t tid) {
+  void tInnerSort(TQueue<uint32_t> &q, const uint32_t sqDim, const uint32_t numThreads,
+                  atomic<int> &workLeft, uint32_t &phaseCount, const uint32_t tid) {
     uint32_t row;
     while(phaseCount > 0) {
       if(phaseCount != 1) {
@@ -333,6 +332,8 @@ private:
         atomic_fetch_sub(&workLeft, 1);
         while(workLeft > 0);
         if(q.pop(row) == sqDim) {
+          for (uint32_t i = 0; i < sqDim; i++)
+            q.push(i);
           workLeft = numThreads;
         }
 
@@ -351,6 +352,8 @@ private:
         atomic_fetch_sub(&workLeft, 1);
         while(workLeft > 0);
         if(tid == 0) {
+          for (uint32_t i = 0; i < sqDim; i++)
+            q.push(i);
           phaseCount--;
           workLeft = numThreads;
         }
@@ -358,6 +361,7 @@ private:
           while(q.pop(row)) {
             sort(m.begin() + row * sqDim, m.begin() + (row + 1) * sqDim);
           }
+          phaseCount--;
       }
     }
   }

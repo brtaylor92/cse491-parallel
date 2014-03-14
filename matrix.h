@@ -289,7 +289,7 @@ public:
 
   void tShearSort(uint32_t numThreads) {
     vector<thread> threadPool(numThreads);
-    atomic<int> workLeft(0);
+    atomic<int> workLeft(numThreads), sync(0);
     uint32_t sqDim;
     if (rows() != cols()) {
       sqDim = uint32_t(ceil(sqrt(rows() * cols())));
@@ -305,7 +305,7 @@ public:
 
     for(uint32_t i = 0; i < numThreads; i++)
       threadPool[i] = thread(&Matrix::tInnerSort, this, std::ref(q), sqDim, numThreads, std::ref(workLeft), 
-                             std::ref(phaseCount), i);
+                             std::ref(phaseCount), i, std::ref(sync));
     for(auto &i : threadPool) {
       i.join();
     }
@@ -320,35 +320,28 @@ private:
   vector<T> m;   //  Data storage - cDim*r
 
   void tInnerSort(TQueue<uint32_t> &q, const uint32_t sqDim, const uint32_t numThreads,
-                  atomic<int> &workLeft, uint32_t &phaseCount, const uint32_t tid) {
+                  atomic<int> &workLeft, uint32_t &phaseCount, const uint32_t tid, atomic<int> &sync) {
     uint32_t row;
     while(phaseCount > 0) {
-      printf("Top of loop %d\n", tid);
-      atomic_fetch_add(&workLeft, 1);
-      while(workLeft != numThreads);
-      auto oldCount = phaseCount;
-      printf("Phase count lol: %d %d\n", phaseCount, tid);
       if(phaseCount != 1) {
         while(q.pop(row)) {
-        //for (uint32_t i = 0; i < sqDim; i++) {
           sort(m.begin() + row * sqDim, m.begin() + (row + 1) * sqDim,
                [&](T a, T b) { return (a < b) ^ (row % 2); });
         }
 
         atomic_fetch_sub(&workLeft, 1);
         while(workLeft > 0);
-        if(q.pop(row) == sqDim) {
+        if(tid == 0) {
           for (uint32_t i = 0; i < sqDim; i++)
             q.push(i);
         }
-        printf("workLeft reset once %d\n", tid);
-        atomic_fetch_add(&workLeft, 1);
-        while(workLeft != numThreads);
-        printf("workLeft reset loop once %d\n", tid);
+
+        //synchronize threads  
+        atomic_fetch_add(&sync, 1);
+        while(sync != numThreads);
 
         vector<T> col_refs;
         while(q.pop(row)) {
-          //for (auto i = m.begin(); i != m.begin() + sqDim; i++) {
           for (auto j = m.begin() + row; j < m.end(); j += sqDim) {
             col_refs.push_back(*j);
           }
@@ -358,14 +351,16 @@ private:
           }
           col_refs.clear();
         }
-        atomic_fetch_sub(&workLeft, 1);
-        while(workLeft > 0);
+        atomic_fetch_add(&workLeft, 1);
+        while(workLeft != numThreads);
         if(tid == 0) {
           for (uint32_t i = 0; i < sqDim; i++)
             q.push(i);
           phaseCount--;
-        } 
-        printf("Thread %d at end of if-phase\n", tid);
+        }
+        //synchronize threads
+        atomic_fetch_sub(&sync, 1);
+        while(sync != 0);
       } else {
           while(q.pop(row)) {
             sort(m.begin() + row * sqDim, m.begin() + (row + 1) * sqDim);
@@ -375,8 +370,11 @@ private:
           if(tid == 0) {
             phaseCount--;
           }
+           //synchronize threads
+          atomic_fetch_add(&sync, 1);
+          while(sync != numThreads);
       }
-      while(phaseCount == oldCount);
+      
     }
   }
 };

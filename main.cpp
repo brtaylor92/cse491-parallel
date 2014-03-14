@@ -51,7 +51,7 @@ void bigRand() {
   d3.rand(0,1,14);
 }
 
-void tBigRand(int t) {
+void tBigRand(const int t) {
   using T = double;
   constexpr int sz = 10000;
   Matrix<T> d1(sz), d2(sz), d3(sz);
@@ -60,18 +60,24 @@ void tBigRand(int t) {
   d3.tRand(0,1,14,t);
 }
 
-void timeThreadSort(const int rows, const int cols, const int numThreads) {
+microseconds timeThreadSort(const int sz, const int numThreads) {
   using T = double;
-  Matrix<T> d(rows, cols, 0);
-  d.rand(0.0,(rows*cols+5.0), 10);
+  Matrix<T> d(sz);
+  d.rand(0, sz*sz, 10);
+  auto t1 = hrc::now();
   d.tShearSort(numThreads);
+  auto t2 = hrc::now();
+  return duration_cast<microseconds>(t2-t1);
 }
 
-void timeSort(const int rows, const int cols) {
+microseconds timeSort(const int sz) {
   using T = double;
-  Matrix<T> d(rows, cols, 0);
-  d.rand(0,(rows*cols+5),10);
+  Matrix<T> d(sz);
+  d.rand(0,sz*sz, 10);
+  auto t1 = hrc::now();
   d.shearSort();
+  auto t2 = hrc::now();
+  return duration_cast<microseconds>(t2-t1);
 }
 
 
@@ -138,16 +144,15 @@ int main(int argc, char const *argv[]) {
 
   //parallelism testing
   microseconds d1{ 0 }, d2{ 0 };
-  const int rows = 1000;
-  const int cols = 1000;
+  const int sz = 1000;
 
   //single thread timing
   for (int i = 0; i < 10; i++) {
-    auto t1 = hrc::now();
-    timeSort(rows, cols);
-    auto t2 = hrc::now();
+    //auto t1 = hrc::now();
+    d1 += timeSort(sz);
+    //auto t2 = hrc::now();
 
-    d1 += duration_cast<microseconds>(t2 - t1);
+    //d1 += duration_cast<microseconds>(t2 - t1);
   }
   d1 /= 10;
 
@@ -158,11 +163,11 @@ int main(int argc, char const *argv[]) {
     d2 *= 0;
     //multithread timing
     for (int i = 0; i < 10; i++) {
-      auto t1 = hrc::now();
-      timeThreadSort(rows, cols, tnum);
-      auto t2 = hrc::now();
+     // auto t1 = hrc::now();
+      d2 += timeThreadSort(sz, tnum);
+     // auto t2 = hrc::now();
 
-      d2 += duration_cast<microseconds>(t2 - t1);
+      //d2 += duration_cast<microseconds>(t2 - t1);
     }
     d2 /= 10;
 
@@ -183,8 +188,7 @@ int main(int argc, char const *argv[]) {
   cout << x << endl;
 
   x.tRand(3, 13, 7, 8);
-  cout << x << endl;
-*/
+  cout << x << endl;*/
 
   /*Matrix<int64_t> s(5);
   s.rand(0,100);
@@ -195,7 +199,6 @@ int main(int argc, char const *argv[]) {
   Matrix<int64_t> t(5, 3, 2);
   t.rand(0,100);
   cout << t << endl;
-<<<<<<< HEAD
   t.tShearSort(20);
   cout << t << endl;*/
 

@@ -60,6 +60,21 @@ void tBigRand(int t) {
   d3.tRand(0,1,14,t);
 }
 
+void timeThreadSort(const int rows, const int cols, const int numThreads) {
+  using T = double;
+  Matrix<T> d(rows, cols, 0);
+  d.rand(0.0,(rows*cols+5.0), 10);
+  d.tShearSort(numThreads);
+}
+
+void timeSort(const int rows, const int cols) {
+  using T = double;
+  Matrix<T> d(rows, cols, 0);
+  d.rand(0,(rows*cols+5),10);
+  d.shearSort();
+}
+
+
 int main(int argc, char const *argv[]) {
   (void)argc;
   (void)argv;
@@ -121,21 +136,15 @@ int main(int argc, char const *argv[]) {
   cout << "m: " << endl << m << endl;
 */
 
-  /*//parallelism testing
+  //parallelism testing
   microseconds d1{ 0 }, d2{ 0 };
-  int threadcount = 16;
-  constexpr int sz = 100;
-  using T = double;
-  Matrix<T> m1(sz), m2(sz), m3(sz);
-  m1.tRand(0, 1, 13, threadcount);
-  m2.tRand(0, 1, 16, threadcount);
-  m1.tAdd(m2, m3, threadcount);
-  //cout << "correctness test " << (m3 == add<T>(m1,m2) ? "passed" : "failed") << endl;
+  const int rows = 1000;
+  const int cols = 1000;
 
   //single thread timing
   for (int i = 0; i < 10; i++) {
     auto t1 = hrc::now();
-    bigAdd(threadcount);
+    timeSort(rows, cols);
     auto t2 = hrc::now();
 
     d1 += duration_cast<microseconds>(t2 - t1);
@@ -145,12 +154,12 @@ int main(int argc, char const *argv[]) {
   cout << "Single threaded took " << duration_cast<milliseconds>(d1).count() << "ms ("
        << static_cast<double>(d1.count()) / 1000000 << "s)" << endl;
 
-  for(auto tnum : vector<int>{1,10,20,30}) {
+  for(auto tnum : vector<int>{1,20,80}) {
     d2 *= 0;
     //multithread timing
     for (int i = 0; i < 10; i++) {
       auto t1 = hrc::now();
-      tBigAdd(tnum,threadcount);
+      timeThreadSort(rows, cols, tnum);
       auto t2 = hrc::now();
 
       d2 += duration_cast<microseconds>(t2 - t1);
@@ -162,7 +171,7 @@ int main(int argc, char const *argv[]) {
          << static_cast<double>(d2.count()) / 1000000 << "s)" << endl
          << "Speedup: " << 1.0*d1/d2 
          << "    (fraction of linear: " << 1.0*d1/(d2*tnum) << ")" << endl << endl;
-  }*/
+  }
 
   /*Matrix<int64_t> t1(3, 3, 3), t2 = t1, t3(3,3,2), t4(3,2,3);
 
@@ -177,16 +186,16 @@ int main(int argc, char const *argv[]) {
   cout << x << endl;
 */
 
-  Matrix<int64_t> s(5);
+  /*Matrix<int64_t> s(5);
   s.rand(0,100);
   cout << s << endl;
-  s.tShearSort(8);
+  s.tShearSort(20);
   cout << s << endl;
 
-  /*Matrix<int64_t> t(5, 3, 2);
+  Matrix<int64_t> t(5, 3, 2);
   t.rand(0,100);
   cout << t << endl;
-  t.tShearSort(1);
+  t.tShearSort(20);
   cout << t << endl;*/
 
   return 0;

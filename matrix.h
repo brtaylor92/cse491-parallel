@@ -222,10 +222,8 @@ public:
     generate(m.begin(), m.end(), rng);
   }
 
-  void tRand(T min, T max, uint32_t seed = 0, uint32_t n = 0) {
-    seed_seq s{ seed, static_cast<uint32_t>(
-                          duration_cast<seconds>(hrc::now().time_since_epoch())
-                              .count()) };
+  void tRand(T min, T max, uint32_t seed = 0, uint32_t n = 1) {
+    seed_seq s{ seed };
     default_random_engine r(s);
     uniform_real_distribution<double> d(min, max);
     auto f = [&](uint32_t i) {

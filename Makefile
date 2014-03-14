@@ -5,10 +5,10 @@ CPPOPTIM = -O3
 LDLIB = -pthread
 
 matrix: main.o
-	$(CXX) $(CPPFLAGS) $(CPPDEBUG) $^ -o $@ $(LDLIB)
+	$(CXX) $(CPPFLAGS) $(CPPOPTIM) $^ -o $@ $(LDLIB)
 
 main.o: main.cpp matrix.h exceptions.h tQueue.h
-	$(CXX) $(CPPFLAGS) $(CPPDEBUG) -c $< $(LDLIB)
+	$(CXX) $(CPPFLAGS) $(CPPOPTIM) -c $< $(LDLIB)
 
 clean:
 	rm -rf *.o matrix

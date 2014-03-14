@@ -183,11 +183,11 @@ int main(int argc, char const *argv[]) {
   s.tShearSort(8);
   cout << s << endl;
 
-  /*Matrix<int64_t> t(5, 3, 2);
+  Matrix<int64_t> t(5, 3, 2);
   t.rand(0,100);
   cout << t << endl;
   t.tShearSort(1);
-  cout << t << endl;*/
+  cout << t << endl;
 
   return 0;
 }

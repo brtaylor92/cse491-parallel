@@ -255,7 +255,7 @@ public:
     }
 
     // shearsort phases
-    for (auto phasecount = 0; phasecount < log(sqDim); phasecount++) {
+    for (auto phasecount = 0; phasecount < log2(sqDim); phasecount++) {
 
       // sort rows snakewise; note the xor in the custom comp function
       for (uint32_t i = 0; i < sqDim; i++) {
@@ -297,7 +297,7 @@ public:
     } else {
       sqDim = rows();
     }
-    uint32_t phaseCount = log(sqDim)+3;
+    uint32_t phaseCount = log2(sqDim)+1;
 
     TQueue<uint32_t> q;
     for(uint32_t i = 0; i < sqDim; i++)
@@ -354,9 +354,9 @@ private:
         atomic_fetch_add(&workLeft, 1);
         while(workLeft != numThreads);
         if(tid == 0) {
+          phaseCount--;  
           for (uint32_t i = 0; i < sqDim; i++)
             q.push(i);
-          phaseCount--;
         }
         //synchronize threads
         atomic_fetch_sub(&sync, 1);
@@ -367,10 +367,10 @@ private:
           }
           atomic_fetch_sub(&workLeft, 1);
           while(workLeft > 0);
-          if(tid == 0) {
+          if(tid == 0) 
             phaseCount--;
-          }
-           //synchronize threads
+          
+          //synchronize threads
           atomic_fetch_add(&sync, 1);
           while(sync != numThreads);
       }

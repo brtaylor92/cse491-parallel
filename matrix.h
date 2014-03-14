@@ -15,6 +15,7 @@
 #include <type_traits>
 #include <vector>
 #include <cmath>
+#include <cstdio>
 
 #include "./exceptions.h"
 #include "./tQueue.h"
@@ -288,7 +289,7 @@ public:
 
   void tShearSort(uint32_t numThreads) {
     vector<thread> threadPool(numThreads);
-    atomic<int> workLeft(numThreads);
+    atomic<int> workLeft(0);
     uint32_t sqDim;
     if (rows() != cols()) {
       sqDim = uint32_t(ceil(sqrt(rows() * cols())));
@@ -322,6 +323,11 @@ private:
                   atomic<int> &workLeft, uint32_t &phaseCount, const uint32_t tid) {
     uint32_t row;
     while(phaseCount > 0) {
+      printf("Top of loop %d\n", tid);
+      atomic_fetch_add(&workLeft, 1);
+      while(workLeft != numThreads);
+      auto oldCount = phaseCount;
+      printf("Phase count lol: %d %d\n", phaseCount, tid);
       if(phaseCount != 1) {
         while(q.pop(row)) {
         //for (uint32_t i = 0; i < sqDim; i++) {
@@ -334,8 +340,11 @@ private:
         if(q.pop(row) == sqDim) {
           for (uint32_t i = 0; i < sqDim; i++)
             q.push(i);
-          workLeft = numThreads;
         }
+        printf("workLeft reset once %d\n", tid);
+        atomic_fetch_add(&workLeft, 1);
+        while(workLeft != numThreads);
+        printf("workLeft reset loop once %d\n", tid);
 
         vector<T> col_refs;
         while(q.pop(row)) {
@@ -355,14 +364,19 @@ private:
           for (uint32_t i = 0; i < sqDim; i++)
             q.push(i);
           phaseCount--;
-          workLeft = numThreads;
-        }
+        } 
+        printf("Thread %d at end of if-phase\n", tid);
       } else {
           while(q.pop(row)) {
             sort(m.begin() + row * sqDim, m.begin() + (row + 1) * sqDim);
           }
-          phaseCount--;
+          atomic_fetch_sub(&workLeft, 1);
+          while(workLeft > 0);
+          if(tid == 0) {
+            phaseCount--;
+          }
       }
+      while(phaseCount == oldCount);
     }
   }
 };

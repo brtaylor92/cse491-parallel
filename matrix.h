@@ -297,7 +297,7 @@ public:
     } else {
       sqDim = rows();
     }
-    uint32_t phaseCount = log(sqDim)+1;
+    uint32_t phaseCount = log(sqDim)+3;
 
     TQueue<uint32_t> q;
     for(uint32_t i = 0; i < sqDim; i++)

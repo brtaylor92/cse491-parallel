@@ -180,7 +180,7 @@ int main(int argc, char const *argv[]) {
   Matrix<int64_t> s(5);
   s.rand(0,100);
   cout << s << endl;
-  s.tShearSort(2);
+  s.tShearSort(8);
   cout << s << endl;
 
   /*Matrix<int64_t> t(5, 3, 2);

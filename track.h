@@ -17,7 +17,7 @@ using std::ostream;
 class Track {
 public:
 	Track() = delete;
-	Track(const uint32_t t) : trackLen(t) {};
+	Track(const uint32_t t, const int prev, const int next) : trackLen(t), prev(prev), next(next) {};
 	Track(const Track &t);
 	Track(Track &&t);
 	Track &operator=(const Track &t);
@@ -28,13 +28,16 @@ public:
   bool full() const { return (track.size() == trackLen); }
   array<uint32_t, 3> *getTrain(uint32_t loc);
   bool letThereBeTrain(uint32_t loc, uint32_t baseMove, uint32_t moveLeft);
- 
+  void babystep();
   friend ostream &operator<<(ostream& out, const Track &t);
+  void refresh();
 
 private:
-	list<array<uint32_t, 3>> track; //location, move per turn, move points left
 	uint32_t trackLen;
-};
+  int prev, next;
+  list<array<uint32_t, 3>> track; //location, move per turn, move points left
+
+  };
 
 
 #endif //_TRACK_H

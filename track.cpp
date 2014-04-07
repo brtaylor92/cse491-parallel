@@ -1,8 +1,10 @@
 #include <algorithm>
 #include <utility>
+#include <iterator>
 
 using std::copy;
 using std::move;
+using std::min;
 
 #include "track.h"
 
@@ -12,11 +14,15 @@ Track::Track(const Track &t) {
 
 Track::Track(Track &&t) {
 	trackLen = move(t.trackLen);
+  prev = move(t.prev);
+  next = move(t.next);
 	track = move(t.track);
 }
 
 Track &Track::operator=(const Track &t) {
 	trackLen = t.trackLen;
+  prev = t.prev;
+  next = t.next;
 	copy(t.track.begin(), t.track.end(), track.begin());
 	return *this;
 }
@@ -41,12 +47,35 @@ bool Track::letThereBeTrain(uint32_t loc, uint32_t baseMove, uint32_t moveLeft) 
     }
     track.insert(track.end(), temp);
     return true;
+}
+
+void Track::babystep() {   
+  uint32_t dist;
+  for(auto it = track.begin(); it != track.end(); it++) {
+    if(it == track.begin()) {
+      dist = min(track.front()[0], track.front()[2]);
+      track.front()[0] -= dist;
+      track.front()[2] -= dist;
+    } else {
+        dist = min((*it)[0] - (*std::prev(it))[0] - 1 , (*it)[2]);
+        (*it)[0] -= dist;
+        (*it)[2] -= dist;
+    }
   }
+}
+
+void smalltalk() {
+
+}
+
+void Track::refresh() {
+  for(auto &a: track)
+    a[2] = a[1];
+}
 
 ostream &operator<<(ostream& out, const Track &t) {
-  for(auto &a: t.track) {
-    out << a[0] << ", ";
+  for(auto a = t.track.rbegin(); a != t.track.rend(); a++) {
+    out <<(*a)[0] << ", ";
   }
   return out;
 }
-

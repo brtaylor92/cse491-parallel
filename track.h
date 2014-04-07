@@ -6,6 +6,7 @@
 #include <list>
 #include <iterator>
 #include <utility>
+#include <vector>
 
 using std::array;
 using std::list;
@@ -13,6 +14,7 @@ using std::pair;
 using std::prev;
 using std::next;
 using std::ostream;
+using std::vector;
 
 class Track {
 public:
@@ -28,9 +30,15 @@ public:
   bool full() const { return (track.size() == trackLen); }
   array<uint32_t, 3> *getTrain(uint32_t loc);
   bool letThereBeTrain(uint32_t loc, uint32_t baseMove, uint32_t moveLeft);
+  array<uint32_t, 3> popFront();
   void babystep();
   friend ostream &operator<<(ostream& out, const Track &t);
   void refresh();
+  uint32_t freeSlots() { return trackLen - (track.size() == 0 ? 0 : track.back()[0] + 1); }
+  vector<array<uint32_t, 3>> sendTrains(uint32_t numSlots);
+  void addTrains(vector<array<uint32_t, 3>> inbound);
+  int getPrev() { return prev; }
+  int getNext() { return next; }
 
 private:
 	uint32_t trackLen;

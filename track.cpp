@@ -1,10 +1,14 @@
 #include <algorithm>
 #include <utility>
 #include <iterator>
+#include <vector>
+#include <iostream>
 
 using std::copy;
 using std::move;
 using std::min;
+using std::vector;
+
 
 #include "track.h"
 
@@ -49,6 +53,17 @@ bool Track::letThereBeTrain(uint32_t loc, uint32_t baseMove, uint32_t moveLeft) 
     return true;
 }
 
+void Track::addTrains(vector<array<uint32_t, 3>> inbound) {
+  for(auto train: inbound)
+    letThereBeTrain(train[0], train[1], train[2]);
+}
+
+array<uint32_t, 3> Track::popFront() {
+  array<uint32_t, 3> train = track.front();
+  track.pop_front();
+  return train;
+}
+
 void Track::babystep() {   
   uint32_t dist;
   for(auto it = track.begin(); it != track.end(); it++) {
@@ -64,6 +79,18 @@ void Track::babystep() {
   }
 }
 
+vector<array<uint32_t, 3>> Track::sendTrains(uint32_t slots) {
+  vector<array<uint32_t, 3>> outbound;
+  for(uint32_t i = slots; i > 0; i--) {
+    if(track.front()[2] >= track.front()[0] + i) {
+      track.front()[2] -= track.front()[0] + i;
+      track.front()[0] = trackLen - i;
+      outbound.push_back(popFront());
+    }
+  }
+  return outbound;
+}
+
 void smalltalk() {
 
 }
@@ -75,7 +102,7 @@ void Track::refresh() {
 
 ostream &operator<<(ostream& out, const Track &t) {
   for(auto a = t.track.rbegin(); a != t.track.rend(); a++) {
-    out <<(*a)[0] << ", ";
+    out << "<" << (*a)[0] << ", " << (*a)[1] << ", " << (*a)[2] << ">, ";
   }
   return out;
 }

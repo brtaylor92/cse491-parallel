@@ -37,12 +37,12 @@ int main(int argc, char const *argv[])
            speed(stoul(argv[3])), numSteps(stoul(argv[4]));
 
   if(numTrains > 4*trackLen) {
-    cerr << "SHE CANNAE TAKE ANY MORE TRAINS CAP'N" << endl;
+    cerr << "SHE CANNAE TAKE ANY MORE TRAINS CAP'N (numTrains < 4*trackLen)" << endl;
     return 1;
   }
 
   if(speed > trackLen) {
-    cerr << "This isn't FTLT: Faster Than Light Trains" << endl;
+    cerr << "This isn't FTLT: Faster Than Light Trains (trainSpeed < trackLen)" << endl;
     return 1;
   }
 
@@ -52,25 +52,34 @@ int main(int argc, char const *argv[])
   
   rand(world, trackLen, numTrains, speed);
 
-  for(uint32_t i = 0; i < world.size(); i++) {
-    cout << "track " << i << " (length: " << world[i].capacity() << ")" << endl << world[i] << endl << endl;
-  }
 
   for(uint64_t i = 0; i<numSteps; i++) {
+    cout << "timestep " << i <<":" << endl;
+    for(uint32_t i = 0; i < world.size(); i++) {
+      cout << "track " << i << " (length: " << world[i].capacity() << ")" << endl << world[i] << endl << endl;
+    }
+
+    
     for(auto &t: world) {
       t.refresh();
       t.babystep();
+    } 
+     
+    for(auto a: vector<int>{0, 1, 2, 0, 3, 4, 3}) {
+      Track *curr = &world[a], *next = &world[(*curr).getNext()];
+      (*next).addTrains((*curr).sendTrains((*next).freeSlots()));
+      (*curr).babystep();
     }
-    
-    /* comm */
-    
-    for(auto &t: world)
-      t.babystep();
+    cout << endl;
   }
+
+  cout << "timestep " << numSteps <<":" << endl;
   for(uint32_t i = 0; i < world.size(); i++) {
     cout << "track " << i << " (length: " << world[i].capacity() << ")" << endl << world[i] << endl << endl;
   }
 
+  
+  
 
 	return 0;
 

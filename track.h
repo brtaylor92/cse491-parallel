@@ -39,12 +39,12 @@ public:
   void addTrains(vector<array<uint32_t, 3>> inbound);
   int getPrev() { return prev; }
   int getNext() { return next; }
+  virtual void swap() {}
 
-private:
+protected:
 	uint32_t trackLen;
   int prev, next;
   list<array<uint32_t, 3>> track; //location, move per turn, move points left
-
   };
 
 

@@ -5,6 +5,7 @@
 #include <string>
 
 #include "track.h"
+#include "intersection.h"
 
 using std::array;
 using std::default_random_engine;
@@ -47,8 +48,8 @@ int main(int argc, char const *argv[])
   }
 
   //center, l, r, t, b
-  array<Track, 5> world{{Track(trackLen, 1, 2), Track(trackLen, 2, 0), Track(trackLen, 0, 1),
-                        Track(trackLen, 4, 4), Track(trackLen, 3, 3)}}; 
+  array<Track, 5> world{{Intersection(trackLen, 1, 2, 3, 4), Track(trackLen, 2, 0), Track(trackLen, 0, 1),
+                        Track(trackLen, 4, 0), Track(trackLen, 0, 3)}}; 
   
   rand(world, trackLen, numTrains, speed);
 
@@ -58,17 +59,24 @@ int main(int argc, char const *argv[])
     for(uint32_t i = 0; i < world.size(); i++) {
       cout << "track " << i << " (length: " << world[i].capacity() << ")" << endl << world[i] << endl << endl;
     }
-
+    if(i%3 == 2) {
+      cout << "next: " << world[0].getPrev() << "\tnext: " << world[0].getNext() << endl;
+      world[0].swap();
+      cout << endl << "TURN" << endl << endl;
+      cout << "next: " << world[0].getPrev() << "\tnext: " << world[0].getNext() << endl;
+    }
     
     for(auto &t: world) {
       t.refresh();
       t.babystep();
     } 
      
-    for(auto a: vector<int>{0, 1, 2, 0, 3, 4, 3}) {
+    for(auto a: vector<int>{0, 1, 2, 3, 4, 0}) {
       Track *curr = &world[a], *next = &world[(*curr).getNext()];
-      (*next).addTrains((*curr).sendTrains((*next).freeSlots()));
-      (*curr).babystep();
+      if(curr == &world[(*next).getPrev()]) {
+        (*next).addTrains((*curr).sendTrains((*next).freeSlots()));
+        (*curr).babystep();
+      }
     }
     cout << endl;
   }

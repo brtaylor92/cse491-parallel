@@ -6,7 +6,7 @@ CPPOPTIM = -O3
 trainz: main.o track.o
 	$(CXX) $(CPPFLAGS) $(CPPDEBUG) $^ -o $@ 
 
-main.o: main.cpp track.h
+main.o: main.cpp track.h intersection.h
 	$(CXX) $(CPPFLAGS) $(CPPDEBUG) -c $< 
 
 track.o: track.cpp track.h

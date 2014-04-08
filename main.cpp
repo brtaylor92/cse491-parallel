@@ -16,14 +16,14 @@ using std::endl;
 using std::stoi;
 using std::stoul;
 
-void rand(array<Track, 5> &world, uint32_t trackLength, uint32_t numTrains, uint32_t trainSpeed) {
+void rand(array<Track*, 5> &world, uint32_t trackLength, uint32_t numTrains, uint32_t trainSpeed) {
   default_random_engine dre;
   uniform_int_distribution<uint32_t> trackGen(1, 4), locGen(0, trackLength-1);
   
   uint32_t track;
   for(uint32_t i = 0; i<numTrains; i++) {
-    do{ track = trackGen(dre); } while(world[track].full());
-    while(!world[track].letThereBeTrain(locGen(dre), trainSpeed, trainSpeed));
+    do{ track = trackGen(dre); } while((*world[track]).full());
+    while(!(*world[track]).letThereBeTrain(locGen(dre), trainSpeed, trainSpeed));
   }
 }
 
@@ -48,8 +48,12 @@ int main(int argc, char const *argv[])
   }
 
   //center, l, r, t, b
-  array<Track, 5> world{{Intersection(trackLen, 1, 2, 3, 4), Track(trackLen, 2, 0), Track(trackLen, 0, 1),
-                        Track(trackLen, 4, 0), Track(trackLen, 0, 3)}}; 
+  Intersection grid0(trackLen, 1, 2, 3, 4);
+  Track grid1(trackLen, 2, 0);
+  Track grid2(trackLen, 0, 1);
+  Track grid3(trackLen, 4, 0);
+  Track grid4(trackLen, 0, 3);
+  array<Track*, 5> world{{&grid0, &grid1, &grid2, &grid3, &grid4}}; 
   
   rand(world, trackLen, numTrains, speed);
 
@@ -57,24 +61,26 @@ int main(int argc, char const *argv[])
   for(uint64_t i = 0; i<numSteps; i++) {
     cout << "timestep " << i <<":" << endl;
     for(uint32_t i = 0; i < world.size(); i++) {
-      cout << "track " << i << " (length: " << world[i].capacity() << ")" << endl << world[i] << endl << endl;
+      cout << "track " << i << " (length: " << ((*world[i]).capacity()) << ")" << endl << (*world[i]) << endl << endl;
     }
     if(i%3 == 2) {
-      cout << "next: " << world[0].getPrev() << "\tnext: " << world[0].getNext() << endl;
-      world[0].swap();
+      cout << "next: " << (*world[0]).getPrev() << "\tnext: " << (*world[0]).getNext() << endl;
+      (*world[0]).turn();
       cout << endl << "TURN" << endl << endl;
-      cout << "next: " << world[0].getPrev() << "\tnext: " << world[0].getNext() << endl;
+      cout << "next: " << (*world[0]).getPrev() << "\tnext: " << (*world[0]).getNext() << endl;
     }
     
-    for(auto &t: world) {
-      t.refresh();
-      t.babystep();
+    for(auto t: world) {
+      (*t).refresh();
+      (*t).babystep();
     } 
      
     for(auto a: vector<int>{0, 1, 2, 3, 4, 0}) {
-      Track *curr = &world[a], *next = &world[(*curr).getNext()];
-      if(curr == &world[(*next).getPrev()]) {
-        (*next).addTrains((*curr).sendTrains((*next).freeSlots()));
+      Track *curr = world[a], *next = world[(*curr).getNext()];
+      if(curr == world[(*next).getPrev()]) {
+        auto cats = (*next).freeSlots();
+        auto dogs = (*curr).sendTrains(cats);
+        (*next).addTrains(dogs);
         (*curr).babystep();
       }
     }
@@ -83,7 +89,7 @@ int main(int argc, char const *argv[])
 
   cout << "timestep " << numSteps <<":" << endl;
   for(uint32_t i = 0; i < world.size(); i++) {
-    cout << "track " << i << " (length: " << world[i].capacity() << ")" << endl << world[i] << endl << endl;
+    cout << "track " << i << " (length: " << (*world[i]).capacity() << ")" << endl << *(world[i]) << endl << endl;
   }
 
   

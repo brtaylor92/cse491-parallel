@@ -9,6 +9,8 @@ using std::move;
 using std::min;
 using std::vector;
 
+using std::cout;
+using std::endl;
 
 #include "track.h"
 

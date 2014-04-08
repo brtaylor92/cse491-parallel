@@ -26,6 +26,9 @@ class Intersection : public Track {
       altNext = temp;
     }
 
+    int getAltPrev() { return altPrev; }
+    int getAltNext() { return altNext; }
+
   private:
     int altPrev, altNext;
 };

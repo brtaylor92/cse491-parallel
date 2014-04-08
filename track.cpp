@@ -64,7 +64,8 @@ uint32_t Track::freeSlots() {
 }
 
 vector<array<uint32_t, 3>> Track::sendTrains(uint32_t slots) {
-  vector<array<uint32_t, 3>> outbound(slots);
+  vector<array<uint32_t, 3>> outbound;
+  outbound.reserve(trackLen);
   if(track.size() > 0) {
     for(uint32_t i = slots; i > 0; i--) {
       if(track.front()[2] >= track.front()[0] + i) {

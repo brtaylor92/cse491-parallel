@@ -1,4 +1,4 @@
-CXX = g++
+CXX = mpic++
 CPPFLAGS = -std=c++11 -Wall -Wextra -pedantic
 CPPDEBUG = -Og -g
 CPPOPTIM = -O3

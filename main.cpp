@@ -3,6 +3,7 @@
 #include <iostream>
 #include <random>
 #include <string>
+#include <mpi.h>
 
 #include "track.h"
 #include "intersection.h"
@@ -16,15 +17,13 @@ using std::endl;
 using std::stoi;
 using std::stoul;
 
-void rand(array<Track*, 5> &world, uint32_t trackLength, 
-          uint32_t numTrains, uint32_t trainSpeed) {
-  default_random_engine dre;
+void rand(Track* t, uint32_t trackLength, uint32_t numTrains, 
+          uint32_t trainSpeed, int rank) {
+  default_random_engine dre(rank);
   uniform_int_distribution<uint32_t> trackGen(1, 4), locGen(0, trackLength-1);
   
-  uint32_t track;
   for(uint32_t i = 0; i<numTrains; i++) {
-    do{ track = trackGen(dre); } while(world[track]->full());
-    while(!world[track]->letThereBeTrain(locGen(dre), trainSpeed, trainSpeed));
+    while(!t->letThereBeTrain(locGen(dre), trainSpeed, trainSpeed));
   }
 }
 
@@ -32,7 +31,7 @@ int main(int argc, char const *argv[])
 {
 	if(argc != 5) {
 		cerr << "Format: " << argv[0] 
-      << " [trackLength] [numTrains] [trainSpeed] [numSteps]"  << endl;
+      << " [trackLength] [starting trains per segment] [trainSpeed] [numSteps]"  << endl;
     return 1;
   }
 
@@ -53,32 +52,51 @@ int main(int argc, char const *argv[])
     return 1;
   }
 
+  MPI_Init(&argc, &argv);
+  int rank;
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+  Track* myTrack;
+
   //center, l, r, t, b
-  Intersection grid0(trackLen, 1, 2, 3, 4);
-  Track grid1(trackLen, 2, 0);
-  Track grid2(trackLen, 0, 1);
-  Track grid3(trackLen, 4, 0);
-  Track grid4(trackLen, 0, 3);
-  array<Track*, 5> world{{&grid0, &grid1, &grid2, &grid3, &grid4}}; 
+  switch(rank) {
+    case 0:
+      myTrack = new Intersection grid0(trackLen, 1, 2, 3, 4);
+      break;
+    case 1:
+      myTrack = new Track grid1(trackLen, 2, 0);
+      break;
+    case 2:
+      myTrack = new Track grid2(trackLen, 0, 1);
+      break;
+    case 3:
+      myTrack = new Track grid3(trackLen, 4, 0);
+      break;
+    case 4:
+      myTrack = new Track grid4(trackLen, 0, 3);
+      break;
+  }
   
-  rand(world, trackLen, numTrains, speed);
+  rand(myTrack, trackLen, numTrains, speed, rank);
 
   for(uint64_t i = 0; i<numSteps; i++) {
-    cout << "timestep " << i <<":" << endl;
+    if(rank == 0) cout << "timestep " << i <<":" << endl;
+    
     for(uint32_t i = 0; i < world.size(); i++) {
-      cout << "track " << i << " (length: " << (world[i]->capacity()) 
-        << ")" << endl << (*world[i]) << endl << endl;
+      cout << "track " << rank << " (length: " << (myTrack->capacity()) 
+        << ")" << endl << *myTrack << endl << endl;
     }
-    if(i%3 == 2) {
-      world[0]->turn();
+    if(rank == 0 && i%3 == 2) {
+      myRank->turn();
       cout << endl << "TURN" << endl << endl;
     }
     
-    for(auto t: world) {
-      t->refresh();
-      t->babystep();
-    } 
-     
+    myRank->refresh();
+    myRank->babystep();
+    myTrack->communicate;
+    myTrack->babystep();
+    myTrack->communicate;
+
     for(auto a: vector<int>{0, 1, 2, 3, 4, 0}) {
       Track *curr = world[a], *next = world[curr->getNext()];
       if(curr == world[next->getPrev()]) {
@@ -88,18 +106,15 @@ int main(int argc, char const *argv[])
         curr->babystep();
       }
     }
-    cout << endl;
+    if(rank == 0) cout << endl;
   }
 
-  cout << "timestep " << numSteps <<":" << endl;
-  for(uint32_t i = 0; i < world.size(); i++) {
-    cout << "track " << i << " (length: " << world[i]->capacity() << ")" 
-      << endl << (*world[i]) << endl << endl;
+  if(rank == 0) cout << "timestep " << numSteps <<":" << endl;
+
+  cout << "track " << rank << " (length: " << myTrack->capacity() << ")" 
+       << endl << *myTrack << endl << endl;
   }
 
-  
-  
-
+  MPI_Finalize();
 	return 0;
-
 }

@@ -57,17 +57,14 @@ int main(int argc, char const *argv[])
   
   rand(world, trackLen, numTrains, speed);
 
-
   for(uint64_t i = 0; i<numSteps; i++) {
     cout << "timestep " << i <<":" << endl;
     for(uint32_t i = 0; i < world.size(); i++) {
       cout << "track " << i << " (length: " << ((*world[i]).capacity()) << ")" << endl << (*world[i]) << endl << endl;
     }
     if(i%3 == 2) {
-      cout << "next: " << (*world[0]).getPrev() << "\tnext: " << (*world[0]).getNext() << endl;
       (*world[0]).turn();
       cout << endl << "TURN" << endl << endl;
-      cout << "next: " << (*world[0]).getPrev() << "\tnext: " << (*world[0]).getNext() << endl;
     }
     
     for(auto t: world) {

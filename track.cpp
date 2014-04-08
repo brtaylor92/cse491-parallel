@@ -83,11 +83,13 @@ void Track::babystep() {
 
 vector<array<uint32_t, 3>> Track::sendTrains(uint32_t slots) {
   vector<array<uint32_t, 3>> outbound;
-  for(uint32_t i = slots; i > 0; i--) {
-    if(track.front()[2] >= track.front()[0] + i) {
-      track.front()[2] -= track.front()[0] + i;
-      track.front()[0] = trackLen - i;
-      outbound.push_back(popFront());
+  if(track.size() > 0) {
+    for(uint32_t i = slots; i > 0; i--) {
+      if(track.front()[2] >= track.front()[0] + i) {
+        track.front()[2] -= track.front()[0] + i;
+        track.front()[0] = trackLen - i;
+        outbound.push_back(popFront());
+      }
     }
   }
   return outbound;

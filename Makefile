@@ -1,6 +1,6 @@
 CXX = mpic++
 CPPFLAGS = -std=c++11 -Wall -Wextra -pedantic
-CPPDEBUG = -Og -g
+CPPDEBUG = -O0 -g
 CPPOPTIM = -O3
 
 trainz: main.o track.o

@@ -66,15 +66,18 @@ uint32_t Track::freeSlots() {
   return trackLen - (track.size() == 0 ? 0 : track.back()[0] + 1); 
 }
 
-vector<array<uint32_t, 3>> Track::sendTrains(uint32_t slots) {
-  vector<array<uint32_t, 3>> outbound;
-  outbound.reserve(trackLen);
+vector<uint32_t> Track::sendTrains(uint32_t slots) {
+  vector<uint32_t> outbound;
+  outbound[0] = 0;
+  outbound.reserve(trackLen*3+1);
   if(track.size() > 0) {
     for(uint32_t i = slots; i > 0; i--) {
       if(track.front()[2] >= track.front()[0] + i) {
         track.front()[2] -= track.front()[0] + i;
         track.front()[0] = trackLen - i;
-        outbound.push_back(popFront());
+        for(auto i : popFront())
+          outbound.push_back(i);
+        outbound[0]++;
       }
     }
   }
@@ -89,9 +92,10 @@ ostream &operator<<(ostream& out, const Track &t) {
 }
 
 
-void Track::addTrains(vector<array<uint32_t, 3>> inbound) {
-  for(auto train: inbound)
-    letThereBeTrain(train[0], train[1], train[2]);
+void Track::addTrains(vector<uint32_t> inbound) {
+  int numTrains = inbound[0];
+  for(auto i = inbound.begin()+1; i != inbound.begin()+3*numTrains+1; ++i)
+    letThereBeTrain(*i, *(++i), *(++i));
 }
 
 void Track::addlComm(MPI_Comm network, MPI_Request* reqAddr) {
@@ -107,10 +111,12 @@ void Track::communicate(MPI_Comm network, MPI_Request* reqAddr) {
   MPI_Isend(&slots, 1, MPI_UNSIGNED, getPrev(), 0, network, reqAddr);
   MPI_Recv(&slots, 1, MPI_UNSIGNED, getNext(), 0, network, MPI_STATUS_IGNORE);
   
-  vector<array<uint32_t, 3>> trains = sendTrains(slots);
+  vector<uint32_t> trains = sendTrains(slots);
       
-  MPI_Isend(&trains, sizeof(trains)+trackLen*(sizeof(array<uint32_t,3>)+3*sizeof(uint32_t)), MPI_BYTE, getNext(), 0, network, reqAddr);
-  MPI_Recv(&trains, sizeof(trains)+trackLen*(sizeof(array<uint32_t,3>)+3*sizeof(uint32_t)), MPI_BYTE, getPrev(), 0, network, MPI_STATUS_IGNORE);
+  MPI_Isend(trains.data(), (trackLen*3+1), MPI_UNSIGNED, getNext(), 0, 
+            network, reqAddr);
+  MPI_Recv(trains.data(), (trackLen*3+1), MPI_UNSIGNED, getPrev(), 0, 
+            network, MPI_STATUS_IGNORE);
             
   addTrains(trains);
 }

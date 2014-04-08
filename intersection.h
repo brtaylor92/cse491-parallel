@@ -18,11 +18,12 @@ class Intersection : public Track {
     
     void addlComm(MPI_Comm network, MPI_Request* reqAddr) {
       uint32_t zeroSlots = freeSlots();
-      vector<array<uint32_t, 3>> zeroTrains;
-      zeroTrains.reserve(trackLen);
+      vector<uint32_t> zeroTrains(3*trackLen+1, 0);
   
-      MPI_Isend(&zeroSlots, 1, MPI_UNSIGNED, getAltPrev(), 0, network, reqAddr);
-      MPI_Isend(&zeroTrains, sizeof(zeroTrains)+trackLen*(sizeof(array<uint32_t,3>)+3*sizeof(uint32_t)), MPI_BYTE, getAltNext(), 0, network, reqAddr);
+      MPI_Isend(&zeroSlots, 1, MPI_UNSIGNED, getAltPrev(), 0, 
+                network, reqAddr);
+      MPI_Isend(zeroTrains.data(), (3*trackLen+1), MPI_UNSIGNED, 
+                getAltNext(), 0, network, reqAddr);
     }
 
     void randFill(uint32_t numTrains, uint32_t trainSpeed, int seed) {

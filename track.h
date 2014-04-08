@@ -36,9 +36,9 @@ public:
   uint32_t capacity() const { return trackLen; }
   uint32_t freeSlots();
   uint32_t size() const { return track.size(); }
-  vector<array<uint32_t, 3>> sendTrains(uint32_t numSlots);
+  vector<uint32_t> sendTrains(uint32_t numSlots);
   virtual void turn() {}
-  void addTrains(vector<array<uint32_t, 3>> inbound);
+  void addTrains(vector<uint32_t> inbound);
   virtual void addlComm(MPI_Comm network, MPI_Request* reqAddr);
   void babystep();
   void communicate(MPI_Comm network, MPI_Request* reqAddr);

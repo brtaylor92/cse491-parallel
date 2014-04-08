@@ -17,16 +17,6 @@ using std::endl;
 using std::stoi;
 using std::stoul;
 
-void rand(Track* t, uint32_t trackLength, uint32_t numTrains, 
-          uint32_t trainSpeed, int rank) {
-  default_random_engine dre(rank);
-  uniform_int_distribution<uint32_t> trackGen(1, 4), locGen(0, trackLength-1);
-  
-  for(uint32_t i = 0; i<numTrains; i++) {
-    while(!t->letThereBeTrain(locGen(dre), trainSpeed, trainSpeed));
-  }
-}
-
 int main(int argc, char *argv[])
 {
 	MPI_Init(&argc, &argv);
@@ -93,7 +83,7 @@ int main(int argc, char *argv[])
       return 1;
   }
   
-  if(rank != 0) rand(myTrack, trackLen, numTrains, speed, rank);
+  myTrack->randFill(numTrains, speed);
 
   MPI_Request request;
 
@@ -110,50 +100,10 @@ int main(int argc, char *argv[])
     
     myTrack->refresh();
     myTrack->babystep();
-    {
-      uint32_t slots = myTrack->freeSlots(), zeroSlots = 0;
-
-      MPI_Isend(&slots, 1, MPI_UNSIGNED, myTrack->getPrev(), 0, MPI_COMM_WORLD, &request);
-      MPI_Recv(&slots, 1, MPI_UNSIGNED, myTrack->getNext(), 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-      if(rank == 0) {
-        MPI_Isend(&zeroSlots, 1, MPI_UNSIGNED, reinterpret_cast<Intersection*>(myTrack)->getAltPrev(), 0, MPI_COMM_WORLD, &request);
-      }
-
-      vector<array<uint32_t, 3>> trains = myTrack->sendTrains(slots), zeroTrains;
-      zeroTrains.reserve(trackLen);
-      
-      MPI_Isend(&trains, sizeof(trains)+trackLen*(sizeof(array<uint32_t,3>)+3*sizeof(uint32_t)), MPI_BYTE, myTrack->getNext(), 0, MPI_COMM_WORLD, &request);
-      MPI_Recv(&trains, sizeof(trains)+trackLen*(sizeof(array<uint32_t,3>)+3*sizeof(uint32_t)), MPI_BYTE, myTrack->getPrev(), 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-      if(rank == 0) {
-        MPI_Isend(&zeroTrains, sizeof(trains)+trackLen*(sizeof(array<uint32_t,3>)+3*sizeof(uint32_t)), MPI_BYTE, reinterpret_cast<Intersection*>(myTrack)->getAltNext(), 0, MPI_COMM_WORLD, &request);
-      }
-      
-      myTrack->addTrains(trains);
-    }
+    myTrack->communicate(MPI_COMM_WORLD, &request);      
     myTrack->babystep(); 
-    {
-      uint32_t slots = myTrack->freeSlots(), zeroSlots = 0;
-
-      MPI_Isend(&slots, 1, MPI_UNSIGNED, myTrack->getPrev(), 0, MPI_COMM_WORLD, &request);
-      MPI_Recv(&slots, 1, MPI_UNSIGNED, myTrack->getNext(), 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-      if(rank == 0) {
-        MPI_Isend(&zeroSlots, 1, MPI_UNSIGNED, reinterpret_cast<Intersection*>(myTrack)->getAltPrev(), 0, MPI_COMM_WORLD, &request);
-      }
-
-      vector<array<uint32_t, 3>> trains = myTrack->sendTrains(slots), zeroTrains;
-      zeroTrains.reserve(trackLen);
-      
-      MPI_Isend(&trains, sizeof(trains)+trackLen*(sizeof(array<uint32_t,3>)+3*sizeof(uint32_t)), MPI_BYTE, myTrack->getNext(), 0, MPI_COMM_WORLD, &request);
-      MPI_Recv(&trains, sizeof(trains)+trackLen*(sizeof(array<uint32_t,3>)+3*sizeof(uint32_t)), MPI_BYTE, myTrack->getPrev(), 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-      if(rank == 0) {
-        MPI_Isend(&zeroTrains, sizeof(trains)+trackLen*(sizeof(array<uint32_t,3>)+3*sizeof(uint32_t)), MPI_BYTE, reinterpret_cast<Intersection*>(myTrack)->getAltNext(), 0, MPI_COMM_WORLD, &request);
-      }
-      
-      myTrack->addTrains(trains);
-    }
-
-    myTrack->babystep();
-
+    myTrack->communicate(MPI_COMM_WORLD, &request);   
+    
     if(rank == 0) cout << endl;
   }
 

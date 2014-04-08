@@ -39,7 +39,10 @@ public:
   vector<array<uint32_t, 3>> sendTrains(uint32_t numSlots);
   virtual void turn() {}
   void addTrains(vector<array<uint32_t, 3>> inbound);
+  virtual void addlComm(MPI_Comm network, MPI_Request* reqAddr);
   void babystep();
+  void communicate(MPI_Comm network, MPI_Request* reqAddr);
+  virtual void randFill(uint32_t numTrains, uint32_t trainSpeed, int seed = 0); 
   void refresh();
 
 protected:

@@ -1,13 +1,16 @@
 #include <algorithm>
 #include <utility>
-#include <iterator>
 #include <vector>
+#include <random>
 #include <iostream>
+#include <mpi.h>
 
 using std::copy;
 using std::move;
 using std::min;
 using std::vector;
+using std::default_random_engine;
+using std::uniform_int_distribution;
 
 #include "track.h"
 
@@ -91,6 +94,28 @@ void Track::addTrains(vector<array<uint32_t, 3>> inbound) {
     letThereBeTrain(train[0], train[1], train[2]);
 }
 
+void Track::addlComm(MPI_Comm network, MPI_Request* reqAddr) {
+  (void) network;
+  (void) reqAddr;
+}
+
+void Track::communicate(MPI_Comm network, MPI_Request* reqAddr) {
+  addlComm(network, reqAddr);
+
+  uint32_t slots = freeSlots();
+
+  MPI_Isend(&slots, 1, MPI_UNSIGNED, getPrev(), 0, network, reqAddr);
+  MPI_Recv(&slots, 1, MPI_UNSIGNED, getNext(), 0, network, MPI_STATUS_IGNORE);
+  
+  vector<array<uint32_t, 3>> trains = sendTrains(slots);
+      
+  MPI_Isend(&trains, sizeof(trains)+trackLen*(sizeof(array<uint32_t,3>)+3*sizeof(uint32_t)), MPI_BYTE, getNext(), 0, network, reqAddr);
+  MPI_Recv(&trains, sizeof(trains)+trackLen*(sizeof(array<uint32_t,3>)+3*sizeof(uint32_t)), MPI_BYTE, getPrev(), 0, network, MPI_STATUS_IGNORE);
+            
+  addTrains(trains);
+}
+
+
 void Track::babystep() {   
   uint32_t dist;
   for(auto it = track.begin(); it != track.end(); it++) {
@@ -106,7 +131,19 @@ void Track::babystep() {
   }
 }
 
+void Track::randFill(uint32_t numTrains, uint32_t trainSpeed, int seed) {
+  if(seed == 0) seed = next^prev; //just throw something together
+  default_random_engine dre(seed);
+  uniform_int_distribution<uint32_t> trackGen(1, 4), locGen(0, trackLen-1);
+  
+  for(uint32_t i = 0; i<numTrains; i++) {
+    while(!letThereBeTrain(locGen(dre), trainSpeed, trainSpeed));
+  }
+}
+
 void Track::refresh() {
   for(auto &a: track)
     a[2] = a[1];
 }
+
+

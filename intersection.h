@@ -7,10 +7,10 @@ class Intersection : public Track {
                  altPrev(altP), altNext(altN) {}
 
     Intersection& operator=(Intersection &rhs) {
-      trackLen = t.trackLen;
-      prev = t.prev;
-      next = t.next;
-	    copy(t.track.begin(), t.track.end(), track.begin());
+      trackLen = rhs.trackLen;
+      prev = rhs.prev;
+      next = rhs.next;
+	    copy(rhs.track.begin(), rhs.track.end(), track.begin());
       altPrev = rhs.altPrev;
       altNext = rhs.altNext;
       return *this;

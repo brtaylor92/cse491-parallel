@@ -11,6 +11,7 @@ Each section of track will be managed by a separate mpi process
 Parallel timings:
 =================
 arguments: -n numThreads trainz trackLen trainsPerGrid trainSpeed timeSteps
+
 [scherrma@dev-intel10 cse491-parallel]$ time mpirun -n 5 trainz 100 75 20 100000 > /dev/null
 
 real    0m8.566s
@@ -31,6 +32,7 @@ sys     0m13.541s
 Serial timings:
 ===============
 arguments: trainz trackLen totalTrains trainSpeed timeSteps
+
 [scherrma@dev-intel10 cse491-parallel]$ time ./trainz 100 300 10 100000 > /dev/null
 
 real    0m12.610s

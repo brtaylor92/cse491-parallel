@@ -112,6 +112,7 @@ void Track::communicate(MPI_Comm network, MPI_Request* reqAddr) {
   MPI_Recv(&slots, 1, MPI_UNSIGNED, getNext(), 0, network, MPI_STATUS_IGNORE);
   
   vector<uint32_t> trains = sendTrains(slots);
+  trains.resere(3*trackLen+1);
       
   MPI_Isend(trains.data(), (trackLen*3+1), MPI_UNSIGNED, getNext(), 0, 
             network, reqAddr);

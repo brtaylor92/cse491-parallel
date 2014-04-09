@@ -72,10 +72,10 @@ int main(int argc, char *argv[])
       myTrack = new Track(trackLen, 0, 1);
       break;
     case 3:
-      myTrack = new Track(trackLen, 4, 4);
+      myTrack = new Track(trackLen, 4, 0);
       break;
     case 4:
-      myTrack = new Track(trackLen, 3, 3);
+      myTrack = new Track(trackLen, 0, 3);
       break;
     default:
       cerr << "I\nwhat?\nhow?" << endl;
@@ -83,34 +83,31 @@ int main(int argc, char *argv[])
       return 1;
   }
   
-  myTrack->randFill(numTrains, speed);
+  myTrack->randFill(numTrains, speed, rank);
 
   MPI_Request request;
 
-  for(uint64_t i = 0; i<numSteps; i++) {
-    if(rank == 0) cout << "timestep " << i <<":" << endl;
-    
-    cout << "track " << rank << " (length: " << (myTrack->capacity()) 
-         << ")" << endl << *myTrack << endl << endl;
-
+  for(uint64_t i = 0; i<numSteps; i++) { 
     if(rank == 0 && i%3 == 2) {
       myTrack->turn();
-      cout << endl << "TURN" << endl << endl;
+      cout << "TURN AT THE BEGINNING OF TIMESTEP " << i << endl;
     }
-    
+    cout << "process " << rank << ", timestep " << i << ", track state: " << *myTrack << endl;
     myTrack->refresh();
+    //cout << "process " << rank << " is babystepping for timestep " << i << " for the first time" << endl;
     myTrack->babystep();
+    //cout << "process " << rank << " is communicating for timestep " << i << " for the first time" << endl;
     myTrack->communicate(MPI_COMM_WORLD, &request);      
+    //cout << "process " << rank << " is babystepping for timestep " << i << " for the second time" << endl;
     myTrack->babystep(); 
+    //cout << "process " << rank << " is communicating for timestep " << i << " for the second time" << endl;
     myTrack->communicate(MPI_COMM_WORLD, &request);   
-    
-    if(rank == 0) cout << endl;
+    //cout << "process " << rank << " is babystepping for timestep " << i << " for the third time" << endl; 
+    myTrack->babystep();
+    //cout << "process " << rank << " has finished processing timestep " << i << endl;
   }
 
-  if(rank == 0) cout << "timestep " << numSteps <<":" << endl;
-
-  cout << "track " << rank << " (length: " << myTrack->capacity() << ")" 
-       << endl << *myTrack << endl << endl;
+  cout << "process " << rank << ", final state: " << *myTrack << endl;
 
   MPI_Finalize();
 	return 0;

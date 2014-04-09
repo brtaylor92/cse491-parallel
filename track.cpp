@@ -14,6 +14,9 @@ using std::uniform_int_distribution;
 
 #include "track.h"
 
+using std::cout;
+using std::endl;
+
 Track::Track(const Track &t) {
 	*this = t;
 }
@@ -67,20 +70,22 @@ uint32_t Track::freeSlots() {
 }
 
 vector<uint32_t> Track::sendTrains(uint32_t slots) {
-  vector<uint32_t> outbound;
-  outbound[0] = 0;
-  outbound.reserve(trackLen*3+1);
-  if(track.size() > 0) {
-    for(uint32_t i = slots; i > 0; i--) {
+  vector<uint32_t> outbound{0};
+    for(uint32_t i = slots; i > 0 && track.size() > 0; i--) {
       if(track.front()[2] >= track.front()[0] + i) {
         track.front()[2] -= track.front()[0] + i;
         track.front()[0] = trackLen - i;
-        for(auto i : popFront())
+        for(auto i : popFront()) {
           outbound.push_back(i);
+        }
         outbound[0]++;
       }
     }
-  }
+  outbound.resize(3*trackLen+1, 0);
+  /*cout << "sending to grid " << next << ": ";
+  for(uint32_t i = 0; i < 3*trackLen+1; i++)
+    cout << outbound[i] << ", ";
+  cout << endl;*/
   return outbound;
 }
 
@@ -93,9 +98,14 @@ ostream &operator<<(ostream& out, const Track &t) {
 
 
 void Track::addTrains(vector<uint32_t> inbound) {
-  int numTrains = inbound[0];
+  /*int numTrains = inbound[0];
   for(auto i = inbound.begin()+1; i != inbound.begin()+3*numTrains+1; ++i)
     letThereBeTrain(*i, *(++i), *(++i));
+*/
+  for(uint32_t i = 0; i < inbound[0]; i++) {
+    letThereBeTrain(inbound[3*i+1], inbound[3*i+2], inbound[3*i+3]);
+  }
+  //cout << *this << " after recieving from grid " << prev << endl;
 }
 
 void Track::addlComm(MPI_Comm network, MPI_Request* reqAddr) {
@@ -112,7 +122,6 @@ void Track::communicate(MPI_Comm network, MPI_Request* reqAddr) {
   MPI_Recv(&slots, 1, MPI_UNSIGNED, getNext(), 0, network, MPI_STATUS_IGNORE);
   
   vector<uint32_t> trains = sendTrains(slots);
-  trains.resere(3*trackLen+1);
       
   MPI_Isend(trains.data(), (trackLen*3+1), MPI_UNSIGNED, getNext(), 0, 
             network, reqAddr);

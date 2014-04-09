@@ -23,7 +23,7 @@ public:
     prev(prev), next(next), trackLen(t) {};
 	Track(const Track &t);
 	Track(Track &&t);
-	virtual Track &operator=(const Track &t);
+	Track &operator=(const Track &t);
   ~Track() = default;
   friend ostream &operator<<(ostream& out, const Track &t);
   array<uint32_t, 3> *getTrain(uint32_t loc);

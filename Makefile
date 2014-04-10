@@ -1,11 +1,9 @@
 CC = gcc
 CCFLAGS = -std=c99 -Wall -Wextra -Werror -pedantic-errors
-LDLIBS = -I/Library/Frameworks/SDL.framework/Headers
-SDL = -framework SDL2 -framework SDL2_image
-LDFLAGS = $(SDL)
+LDLIBS = 
 
-gol: main.c sdl.h gol.h
-	$(CC) $(CCFLAGS) $(LDLIBS) $(SDL) -g $^ -o $@
+gol: main.c gol.h
+	$(CC) $(CCFLAGS) $(LDLIBS) $^ -o $@
 
 clean:
 	rm -rf gol

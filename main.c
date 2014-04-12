@@ -7,92 +7,78 @@
 #include "sdl.h"
 #include "gol.h"
 
-int main(int argc, char const *argv[])
+int main(int argc, char *argv[])
 {
-	if(argc < 3) {
-		printf("format: %s [fileName] [numSteps]\n", argv[0]);
-		return 1;
-	}
+  if(argc != 2) {
+      printf("format: %s [fileName]\n", argv[0]);
+      return 1;
+  }
 
-	FILE *fp = fopen(argv[1], "r");
-	if(!fp) {
-		printf("Could not open file\n");
-		return 1;
-	}
-
-	long numSteps = strtol(argv[2], NULL, 10);
-	if (errno != 0) {
-    printf("Unable to process argument as int\n");
+  FILE *fp = fopen(argv[1], "r");
+  if(!fp) {
+    printf("Could not open file\n");
     return 1;
-	}
-	(void) numSteps;
+  }
 
-	short rules[2][9] = {{0,0,0,1,0,0,0,0,0},{0,0,1,1,0,0,0,0,0}};
-	const int rows = 8;
-	const int cols = 8;
-	const int height  = 16 * rows + 1;
-	const int width = 16 * cols + 1;
-	short **grid = (short**) malloc(sizeof(short*) * rows);
-	for(int i = 0; i < rows; i++) {
-		grid[i] = (short*) malloc(sizeof(short) * cols);
-	}
+  const int rows = 8;
+  const int cols = 8;
+  const int height  = 16 * rows + 1;
+  const int width = 16 * cols + 1;
+  square_t *gridA = (square_t*) malloc(sizeof(square_t) * rows * cols);
+  square_t *gridB = (square_t*) malloc(sizeof(square_t) * rows * cols);
 
-	if(SDL_Init(SDL_INIT_EVERYTHING) != 0) {
-		logSDLError("SDL_Init");
-		return 1;
-	}
+  if(SDL_Init(SDL_INIT_EVERYTHING) != 0) {
+    logSDLError("SDL_Init");
+    return 1;
+  }
 
-	SDL_Window *window = SDL_CreateWindow("Game of Life", 100, 100, width,
-		height, SDL_WINDOW_SHOWN);
-	if(!window) {
-		logSDLError("CreateWindow");
-		return 1;
-	}
+  SDL_Window *window = SDL_CreateWindow("Lesson 2", 100, 100, width,
+                                        height, SDL_WINDOW_SHOWN
+                                       );
+  if(!window) {
+    logSDLError("CreateWindow");
+    return 1;
+  }
 
-	SDL_Renderer *renderer = SDL_CreateRenderer(window, -1,
-		SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-	if(!renderer) {
-		logSDLError("CreateRenderer");
-		return 1;
-	}
-	
-	readGrid(grid, rows, cols, fp);
-	fclose(fp);
+  SDL_Renderer *renderer = SDL_CreateRenderer(window, -1,
+                                              SDL_RENDERER_ACCELERATED | 
+                                              SDL_RENDERER_PRESENTVSYNC
+                                             );
+  if(!renderer) {
+    logSDLError("CreateRenderer");
+    return 1;
+  }
+  
+  readGrid(gridA, rows, cols, fp);
+  fclose(fp);
 
-	int quit = 0;
-	SDL_Event e;
-	printGrid(grid, rows, cols);
-	drawGrid(grid, rows, cols, width, height, renderer);
-	SDL_Delay(500);
-	//for(long i = 0; i < numSteps; i++) {
-	while(!quit) {
-		while(SDL_PollEvent(&e) != 0) {
-			if(e.type == SDL_QUIT){
-				quit = 1;
-			}
-		}
-		step(grid, rows, cols, rules);
-		printGrid(grid, rows, cols);
-		drawGrid(grid, rows, cols, width, height, renderer);
-		SDL_RenderPresent(renderer);
-		SDL_Delay(250);
-	}
-	
-	/*int quit = 0;
-	SDL_Event e;
-	while(!quit) {
-		while(SDL_PollEvent(&e) != 0) {
-			if(e.type == SDL_QUIT){
-				quit = 1;
-			}
-		}
-		//SDL_RenderPresent(renderer);
-	}*/
+  long numSteps = 0;
+  int quit = 0;
+  SDL_Event e;
+  printGrid(gridA, rows, cols);
+  drawGrid(gridA, rows, cols, width, height, renderer);
+  SDL_Delay(500);
+  //for(long i = 0; i < numSteps; i++) {
+  while(!quit) {
+    while(SDL_PollEvent(&e) != 0) {
+      if(e.type == SDL_QUIT){
+          quit = 1;
+      }
+    }
+    step(gridA, gridB, rows, cols);
+    numSteps++;
+    square_t *temp = gridA;
+    gridA = gridB;
+    gridB = temp;
+    printGrid(gridA, rows, cols);
+    drawGrid(gridA, rows, cols, width, height, renderer);
+    SDL_RenderPresent(renderer);
+    SDL_Delay(250);
+  }
 
-	for(int i = 0; i < rows; i++) {
-		free(grid[i]);
-	}
-	free(grid);
+  printf("Iterated for %ld steps\n", numSteps);
+  free(gridA);
+  free(gridB);
 
-	return 0;
+  return 0;
 }

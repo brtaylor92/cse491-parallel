@@ -5,48 +5,44 @@
 
 #include "gol.h"
 
-int main(int argc, char const *argv[])
+int main(int argc, char *argv[])
 {
-	if(argc < 3) {
-		printf("format: %s [fileName] [numSteps]\n", argv[0]);
-		return 1;
-	}
+  if(argc < 3) {
+      printf("format: %s [fileName] [numSteps]\n", argv[0]);
+      return 1;
+  }
 
-	FILE *fp = fopen(argv[1], "r");
-	if(!fp) {
-		printf("Could not open file\n");
-		return 1;
-	}
+  FILE *fp = fopen(argv[1], "r");
+  if(!fp) {
+    printf("Could not open file\n");
+    return 1;
+  }
 
-	long numSteps = strtol(argv[2], NULL, 10);
-	if (errno != 0) {
+  long numSteps = strtol(argv[2], NULL, 10);
+  if (errno != 0) {
     printf("Unable to process argument as int\n");
     return 1;
-	}
-	(void) numSteps;
+  }
 
-	short rules[2][9] = {{0,0,0,1,0,0,0,0,0},{0,0,1,1,0,0,0,0,0}};
-	const int rows = 8;
-	const int cols = 8;
-	short **grid = (short**) malloc(sizeof(short*) * rows);
-	for(int i = 0; i < rows; i++) {
-		grid[i] = (short*) malloc(sizeof(short) * cols);
-	}
+  const int rows = 8;
+  const int cols = 8;
+  square_t *gridA = (square_t*) malloc(sizeof(square_t) * rows * cols);
+  square_t *gridB = (square_t*) malloc(sizeof(square_t) * rows * cols);
+  
+  readGrid(gridA, rows, cols, fp);
+  fclose(fp);
 
-	readGrid(grid, rows, cols, fp);
-	fclose(fp);
+  printGrid(gridA, rows, cols);
+  for(long i = 0; i < numSteps; i++) {
+    step(gridA, gridB, rows, cols);
+    square_t *temp = gridA;
+    gridA = gridB;
+    gridB = temp;
+    printGrid(gridA, rows, cols);
+  }
 
-	printGrid(grid, rows, cols);
-	for(long i = 0; i < numSteps; i++) {
-	  step(grid, rows, cols, rules);
-	  printGrid(grid, rows, cols);
-	}
-	
+  free(gridA);
+  free(gridB);
 
-	for(int i = 0; i < rows; i++) {
-		free(grid[i]);
-	}
-	free(grid);
-
-	return 0;
+  return 0;
 }
